@@ -30,6 +30,8 @@ public class MovieCell extends ListCell<Movie> {
             );
 
 
+
+
             // color scheme
             title.getStyleClass().add("text-yellow");
             detail.getStyleClass().add("text-white");
