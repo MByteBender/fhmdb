@@ -62,6 +62,7 @@ public class HomeController implements Initializable {
 
                     filterMovies(filterElement);
 
+
                 }
         );
 
@@ -70,17 +71,20 @@ public class HomeController implements Initializable {
         // either set event handlers in the fxml file (onAction) or add them here
 
         // Sort button example:
+        // TODO sorting after filter does not work fix!! - own TODO Tristan
         sortBtn.setOnAction(actionEvent -> {
             if(sortBtn.getText().equals("Sort (asc)")) {
 
 
-                observableMovies.sort((o1, o2) -> o1.getTitle().compareTo(o2.getTitle()));
+                sortMovies(sortBtn.getText());
+//                observableMovies.sort((o1, o2) -> o1.getTitle().compareTo(o2.getTitle()));
 //
                 // TODO sort observableMovies ascending
                 sortBtn.setText("Sort (desc)");
             } else {
-                observableMovies.sort((o1, o2) -> o2.getTitle().compareTo(o1.getTitle()));
+//                observableMovies.sort((o1, o2) -> o2.getTitle().compareTo(o1.getTitle()));
 
+                sortMovies(sortBtn.getText());
                 // TODO sort observableMovies descending
                 sortBtn.setText("Sort (asc)");
             }
@@ -89,8 +93,8 @@ public class HomeController implements Initializable {
 
 
     public void filterMovies(String filterElement) {
-//
-//
+
+
         if (searchField.getText().isEmpty()) {
             filteredMovies.setAll(allMovies);
         } else if (filterElement != null && filterElement.equals("BIOGRAPHY")) {
@@ -151,9 +155,14 @@ public class HomeController implements Initializable {
     }
 //
 //
-//    public void sortMovies(){
-//        observableMovies.sort(Comparator.comparing(Movie::getTitle));
+    public void sortMovies(String sortText){
+        if (sortBtn.getText().equals("Sort (asc)")){
+            observableMovies.sort(Comparator.comparing(Movie::getTitle));
+        } else if (sortBtn.getText().equals("Sort (desc)")){
+            observableMovies.sort(Comparator.comparing(Movie::getTitle).reversed());
+        }
+
 //        sortState = SortState.ASCENDING;
-//    }
+    }
 
 }
