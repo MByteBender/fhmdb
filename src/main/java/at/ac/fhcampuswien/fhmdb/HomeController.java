@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.fhmdb;
 
+import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
 import com.jfoenix.controls.JFXButton;
@@ -57,51 +58,10 @@ public class HomeController implements Initializable {
 
         searchBtn.setOnAction(actionEvent -> {
 
-
-
                     String filterElement = (String) genreComboBox.getSelectionModel().getSelectedItem();
 
                     filterMovies(filterElement);
 
-//            if (searchField.getText().isEmpty()) {
-//                observableMovies.addAll(allMovies);
-//
-//
-//            } else if (filterElement != null && filterElement.equals("BIOGRAPHY")) {
-//                String searchTerm = searchField.getText();
-//                List<Movie> results = new ArrayList<>();
-//                for (Movie movie : Movie.initializeMovies()) {
-//                    if (movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase())) {
-//                        results.add(movie);
-//                    }
-//                }
-//                observableMovies.clear();
-//                observableMovies.addAll(results);
-//
-//            } else if(filterElement != null && filterElement.equals("GENRE")){
-//                String searchTerm = searchField.getText();
-//                List<Movie> results = new ArrayList<>();
-//                for (Movie movie : Movie.initializeMovies()) {
-//                    if (movie.getGenres().contains(searchTerm)) {
-//                        results.add(movie);
-//                    }
-//                }
-//                observableMovies.clear();
-//                observableMovies.addAll(results);
-//
-//
-//            } else if(filterElement != null && filterElement.equals("TITLE")){
-//                System.out.println("TITLE");
-//                String searchTerm = searchField.getText();
-//                List<Movie> results = new ArrayList<>();
-//                for (Movie movie : Movie.initializeMovies()) {
-//                    if (movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase())) {
-//                        results.add(movie);
-//                    }
-//                }
-//                observableMovies.clear();
-//                observableMovies.addAll(results);
-//        }
                 }
         );
 
@@ -149,23 +109,32 @@ public class HomeController implements Initializable {
         } else if (filterElement != null && filterElement.equals("GENRE")) {
             String searchTerm = searchField.getText();
             List<Movie> results = new ArrayList<>();
+
             for (Movie movie : allMovies) {
-                if (movie.getGenres().contains(searchTerm)) {
-                    results.add(movie);
+                List<Genre> genres = movie.getGenres();
+                for (Genre genre : genres) {
+                    if (genre.toString().toUpperCase().contains(searchTerm.toUpperCase())) {
+                        results.add(movie);
+                        break;
+                    }
                 }
             }
+
             filteredMovies.setAll(results);
             observableMovies.addAll(filteredMovies);
             movieListView.setItems(filteredMovies);
             movieListView.setCellFactory(movieListView -> new MovieCell());
+
         } else if (filterElement != null && filterElement.equals("TITLE")) {
             String searchTerm = searchField.getText();
             List<Movie> results = new ArrayList<>();
             for (Movie movie : allMovies) {
                 if (movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase())) {
                     results.add(movie);
+                    System.out.println(movie.getGenres());
                 }
             }
+
 
             System.out.println("Durchgang: "+ count);
             count ++;
