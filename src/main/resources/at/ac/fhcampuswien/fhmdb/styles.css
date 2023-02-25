@@ -19,6 +19,12 @@
     -fx-text-fill: #ffffff;
 }
 
+.text-black-italic {
+    -fx-font-style: italic;
+    -fx-text-fill: black;
+
+}
+
 .list-view .list-cell:even {
     -fx-background-color: black;
     -fx-text-fill: white;

@@ -31,8 +31,17 @@ public class HomeController implements Initializable {
     public JFXButton sortBtn;
 
     public List<Movie> allMovies = Movie.initializeMovies();
+    private List<Movie> searchResults = new ArrayList<>();
+
+    int count = 0;
+    private ObservableList<Movie> filteredMovies = FXCollections.observableArrayList();
 
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
+
+    private final ObservableList<Movie> currentMovies = FXCollections.observableArrayList(allMovies);
+    public ObservableList<Movie> getObservableMovies() {
+        return observableMovies;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -48,34 +57,53 @@ public class HomeController implements Initializable {
 
         searchBtn.setOnAction(actionEvent -> {
 
-            String selectedGenre = (String) genreComboBox.getSelectionModel().getSelectedItem();
 
-            if (selectedGenre != null && selectedGenre.equals("BIOGRAPHY")) {
-                String searchTerm = searchField.getText();
-                List<Movie> results = new ArrayList<>();
-                for (Movie movie : Movie.initializeMovies()) {
-                    if (movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase())) {
-                        results.add(movie);
-                    }
+
+                    String filterElement = (String) genreComboBox.getSelectionModel().getSelectedItem();
+
+                    filterMovies(filterElement);
+
+//            if (searchField.getText().isEmpty()) {
+//                observableMovies.addAll(allMovies);
+//
+//
+//            } else if (filterElement != null && filterElement.equals("BIOGRAPHY")) {
+//                String searchTerm = searchField.getText();
+//                List<Movie> results = new ArrayList<>();
+//                for (Movie movie : Movie.initializeMovies()) {
+//                    if (movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase())) {
+//                        results.add(movie);
+//                    }
+//                }
+//                observableMovies.clear();
+//                observableMovies.addAll(results);
+//
+//            } else if(filterElement != null && filterElement.equals("GENRE")){
+//                String searchTerm = searchField.getText();
+//                List<Movie> results = new ArrayList<>();
+//                for (Movie movie : Movie.initializeMovies()) {
+//                    if (movie.getGenres().contains(searchTerm)) {
+//                        results.add(movie);
+//                    }
+//                }
+//                observableMovies.clear();
+//                observableMovies.addAll(results);
+//
+//
+//            } else if(filterElement != null && filterElement.equals("TITLE")){
+//                System.out.println("TITLE");
+//                String searchTerm = searchField.getText();
+//                List<Movie> results = new ArrayList<>();
+//                for (Movie movie : Movie.initializeMovies()) {
+//                    if (movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase())) {
+//                        results.add(movie);
+//                    }
+//                }
+//                observableMovies.clear();
+//                observableMovies.addAll(results);
+//        }
                 }
-                observableMovies.clear();
-                observableMovies.addAll(results);
-
-            } else if(selectedGenre != null && selectedGenre.equals("GENRE")){
-
-
-            } else if(selectedGenre != null && selectedGenre.equals("TITLE")){
-                System.out.println("TITLE");
-                String searchTerm = searchField.getText();
-                List<Movie> results = new ArrayList<>();
-                for (Movie movie : Movie.initializeMovies()) {
-                    if (movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase())) {
-                        results.add(movie);
-                    }
-                }
-                observableMovies.clear();
-                observableMovies.addAll(results);
-        }});
+        );
 
 
         // TODO add event handlers to buttons and call the regarding methods
@@ -97,8 +125,66 @@ public class HomeController implements Initializable {
                 sortBtn.setText("Sort (asc)");
             }
         });
-
-
-
     }
+
+
+    public void filterMovies(String filterElement) {
+//
+//
+        if (searchField.getText().isEmpty()) {
+            filteredMovies.setAll(allMovies);
+        } else if (filterElement != null && filterElement.equals("BIOGRAPHY")) {
+            String searchTerm = searchField.getText();
+            List<Movie> results = new ArrayList<>();
+            for (Movie movie : allMovies) {
+                if (movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase())) {
+                    results.add(movie);
+                }
+            }
+            filteredMovies.setAll(results);
+            observableMovies.addAll(filteredMovies);
+            movieListView.setItems(filteredMovies);
+            movieListView.setCellFactory(movieListView -> new MovieCell());
+
+        } else if (filterElement != null && filterElement.equals("GENRE")) {
+            String searchTerm = searchField.getText();
+            List<Movie> results = new ArrayList<>();
+            for (Movie movie : allMovies) {
+                if (movie.getGenres().contains(searchTerm)) {
+                    results.add(movie);
+                }
+            }
+            filteredMovies.setAll(results);
+            observableMovies.addAll(filteredMovies);
+            movieListView.setItems(filteredMovies);
+            movieListView.setCellFactory(movieListView -> new MovieCell());
+        } else if (filterElement != null && filterElement.equals("TITLE")) {
+            String searchTerm = searchField.getText();
+            List<Movie> results = new ArrayList<>();
+            for (Movie movie : allMovies) {
+                if (movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase())) {
+                    results.add(movie);
+                }
+            }
+
+            System.out.println("Durchgang: "+ count);
+            count ++;
+            filteredMovies.setAll(results);
+            observableMovies.addAll(filteredMovies);
+            movieListView.setItems(filteredMovies);
+            movieListView.setCellFactory(movieListView -> new MovieCell());
+
+        }
+
+        movieListView.setItems(filteredMovies);
+
+        movieListView.setCellFactory(movieListView -> new MovieCell());
+    }
+//
+//
+//    public void sortMovies(){
+//        observableMovies.sort(Comparator.comparing(Movie::getTitle));
+//        sortState = SortState.ASCENDING;
+//    }
+
 }
