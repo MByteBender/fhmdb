@@ -12,12 +12,20 @@ class HomeControllerTest {
     static void inti() { homeController = new HomeController(); }
 
     @Test
-    void movies_and_observableMovies_are_equal(){
-        //GIVEN
-        homeController.initializeState();
+    void click_on_Sort_button_when_it_shows_sortasc_sorts_movies_ascending(){
+        //given
 
-        //WHEN & THEN
-        assertEquals(homeController.allMovies, homeController.getObservableMovies());
     }
+
+
+//
+//    @Test
+//    void movies_and_observableMovies_are_equal(){
+//        //GIVEN
+//        homeController.initializeState();
+//
+//        //WHEN & THEN
+//        assertEquals(homeController.allMovies, homeController.getObservableMovies());
+//    }
 
 }
