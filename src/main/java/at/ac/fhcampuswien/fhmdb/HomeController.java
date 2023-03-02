@@ -90,7 +90,7 @@ public class HomeController implements Initializable {
     public List<Movie> filterMovies(String filterElement, String searchTerm) {
         List<Movie> filteredMovies = new ArrayList<>();
 
-        if (filterElement.equals("No Genre Filter") || genreComboBox.getPromptText().equals("Filter by Genre")){
+        if (filterElement.equals("No Genre Filter") || genreComboBox.getSelectionModel().getSelectedItem() == null){
             for (Movie movie : allMovies){
                 if (movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
                     movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase())){
@@ -98,6 +98,7 @@ public class HomeController implements Initializable {
                 }
             }
         } else {
+            System.out.println("Test"+ genreComboBox.getPromptText());
             for (Movie movie : allMovies) {
                 List<Genre> genres = movie.getGenres();
                 for (Genre genre : genres) {
