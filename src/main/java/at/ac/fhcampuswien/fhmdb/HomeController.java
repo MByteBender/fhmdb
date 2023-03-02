@@ -72,12 +72,10 @@ public class HomeController implements Initializable {
 
 
                 sortMovies(sortBtn.getText());
-//                observableMovies.sort((o1, o2) -> o1.getTitle().compareTo(o2.getTitle()));
-//
+
                 // TODO sort observableMovies ascending
                 sortBtn.setText("Sort (desc)");
             } else {
-//                observableMovies.sort((o1, o2) -> o2.getTitle().compareTo(o1.getTitle()));
 
                 sortMovies(sortBtn.getText());
                 // TODO sort observableMovies descending
@@ -117,6 +115,8 @@ public class HomeController implements Initializable {
         } else if (sortBtn.getText().equals("Sort (desc)")){
             observableMovies.sort(Comparator.comparing(Movie::getTitle).reversed());
         }
+
+
 
 //        sortState = SortState.ASCENDING;
     }
