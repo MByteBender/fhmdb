@@ -36,6 +36,10 @@ public class Movie {
                 "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
                 Arrays.asList(Genre.ACTION, Genre.SCIENCE_FICTION)));
         movies.add(new Movie(
+                "The Matrix 2",
+                "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
+                Arrays.asList(Genre.ACTION, Genre.SCIENCE_FICTION)));
+        movies.add(new Movie(
                 "Forrest Gump",
                 "The presidencies of Kennedy and Johnson, the Vietnam War, and the Watergate scandal, is seen through the eyes of an Alabama man with an IQ of 75.",
                 Arrays.asList(Genre.DRAMA, Genre.ROMANCE, Genre.COMEDY)));

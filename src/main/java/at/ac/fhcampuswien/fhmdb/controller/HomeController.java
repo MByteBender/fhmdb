@@ -1,4 +1,4 @@
-package at.ac.fhcampuswien.fhmdb;
+package at.ac.fhcampuswien.fhmdb.controller;
 
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
@@ -26,16 +26,14 @@ public class HomeController implements Initializable {
     public JFXListView movieListView;
 
     @FXML
-    public JFXComboBox genreComboBox;
+    public JFXComboBox <Genre> genreComboBox;
 
     @FXML
     public JFXButton sortBtn;
 
     public List<Movie> allMovies = Movie.initializeMovies();
     private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
-    public ObservableList<Movie> getObservableMovies() {
-        return observableMovies;
-    }
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -47,8 +45,10 @@ public class HomeController implements Initializable {
 
         // TODO add genre filter items with genreComboBox.getItems().addAll(...)
         genreComboBox.setPromptText("Filter by Genre");
-        genreComboBox.getItems().add("No Genre Filter");
+
+
         genreComboBox.getItems().addAll(Genre.values()); //add all genres to comboBox
+
 
 
         searchBtn.setOnAction(actionEvent -> {
@@ -66,20 +66,16 @@ public class HomeController implements Initializable {
         // either set event handlers in the fxml file (onAction) or add them here
 
         // Sort button example:
-        // TODO sorting after filter does not work fix!! - own TODO Tristan
         sortBtn.setOnAction(actionEvent -> {
             if(sortBtn.getText().equals("Sort (asc)")) {
 
 
-                sortMovies(sortBtn.getText());
-//                observableMovies.sort((o1, o2) -> o1.getTitle().compareTo(o2.getTitle()));
-//
+                sortMovies(observableMovies);
                 // TODO sort observableMovies ascending
                 sortBtn.setText("Sort (desc)");
             } else {
-//                observableMovies.sort((o1, o2) -> o2.getTitle().compareTo(o1.getTitle()));
 
-                sortMovies(sortBtn.getText());
+                sortMovies(observableMovies);
                 // TODO sort observableMovies descending
                 sortBtn.setText("Sort (asc)");
             }
@@ -87,10 +83,16 @@ public class HomeController implements Initializable {
     }
 
 
+    /** Filters Movies with searchterm
+     *
+     * @param filterElement
+     * @param searchTerm
+     * @return ArrayList
+     */
     public List<Movie> filterMovies(String filterElement, String searchTerm) {
         List<Movie> filteredMovies = new ArrayList<>();
 
-        if (filterElement.equals("No Genre Filter") || genreComboBox.getSelectionModel().getSelectedItem() == null){
+        if (filterElement.equals("NO_GENRE_FILTER") || genreComboBox.getSelectionModel().getSelectedItem() == null){
             for (Movie movie : allMovies){
                 if (movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
                     movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase())){
@@ -98,7 +100,6 @@ public class HomeController implements Initializable {
                 }
             }
         } else {
-            System.out.println("Test"+ genreComboBox.getPromptText());
             for (Movie movie : allMovies) {
                 List<Genre> genres = movie.getGenres();
                 for (Genre genre : genres) {
@@ -112,14 +113,27 @@ public class HomeController implements Initializable {
         }
         return filteredMovies;
     }
-    public void sortMovies(String sortText){
+
+
+    public void sortMovies(ObservableList<Movie> observableMovies){
         if (sortBtn.getText().equals("Sort (asc)")){
             observableMovies.sort(Comparator.comparing(Movie::getTitle));
         } else if (sortBtn.getText().equals("Sort (desc)")){
             observableMovies.sort(Comparator.comparing(Movie::getTitle).reversed());
         }
-
-//        sortState = SortState.ASCENDING;
     }
+
+
+//    public ObservableList<Movie> sortMovies(ObservableList<Movie> observableMovies){
+//        if (sortBtn.getText().equals("Sort (asc)")){
+//            observableMovies.sort(Comparator.comparing(Movie::getTitle));
+//        } else if (sortBtn.getText().equals("Sort (desc)")){
+//            observableMovies.sort(Comparator.comparing(Movie::getTitle).reversed());
+//        }
+//
+//        return observableMovies;
+//
+////        sortState = SortState.ASCENDING;
+//    }
 
 }
