@@ -99,6 +99,7 @@ public class HomeController implements Initializable {
                     filteredMovies.add(movie);
                 }
             }
+
         } else {
             for (Movie movie : allMovies) {
                 List<Genre> genres = movie.getGenres();
