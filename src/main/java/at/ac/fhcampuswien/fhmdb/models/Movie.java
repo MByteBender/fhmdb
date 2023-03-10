@@ -3,6 +3,7 @@ package at.ac.fhcampuswien.fhmdb.models;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Movie {
     private String title;
@@ -29,10 +30,28 @@ public class Movie {
         return genres;
     }
 
+
+    @Override
+    public boolean equals(Object Movie) {
+        if (this == Movie) return true;
+        if (Movie == null || getClass() != Movie.getClass()) return false;
+        Movie movie = (Movie) Movie;
+        return Objects.equals(title, movie.title) && Objects.equals(description, movie.description) && Objects.equals(genres, movie.genres);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, description, genres);
+    }
+
     public static List<Movie> initializeMovies(){
         List<Movie>  movies= new ArrayList<>();
         movies.add(new Movie(
                 "The Matrix",
+                "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
+                Arrays.asList(Genre.ACTION, Genre.SCIENCE_FICTION)));
+        movies.add(new Movie(
+                "The Matrix 2",
                 "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
                 Arrays.asList(Genre.ACTION, Genre.SCIENCE_FICTION)));
         movies.add(new Movie(

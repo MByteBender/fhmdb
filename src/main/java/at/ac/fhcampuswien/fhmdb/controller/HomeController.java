@@ -77,7 +77,6 @@ public class HomeController implements Initializable {
 
 
     /** Filters Movies with searchterm
-     *
      * @param genreFilter
      * @param searchTerm
      * @return ArrayList
@@ -119,8 +118,8 @@ public class HomeController implements Initializable {
     }
 
 
-    /** reverses Movielist depending on SortState
-     * @return void
+    /** reverses Movielist depending on SortState and
+     * @return correct Sortstate String
      */
     public String reverseMovies() throws IllegalArgumentException {
         if (this.sortState == SortState.ASCENDING) {

@@ -50,14 +50,6 @@ class HomeControllerTest {
             )
     );
 
-
-    @Test
-    void click_on_Sort_button_when_it_shows_sortasc_sorts_movies_ascending(){
-        //given
-
-    }
-
-
     @Test
     void list_will_not_be_filterd_when_no_filter_is_applied_and_no_searchterm_is_in_searchbox(){
         // given
@@ -195,7 +187,7 @@ class HomeControllerTest {
     }
 
     @Test
-    void sort_sortedlist_reversed_descending_when_button_is_clicked_for_first_time_and_Sortstate_is_Descending(){
+    void check_if_List_is_reversed(){
         // given
 
         ObservableList<Movie>  unsortedList= FXCollections.observableArrayList(
@@ -241,4 +233,38 @@ class HomeControllerTest {
         // then
         assertEquals(expected,homeController.observableMovies);
     }
+    @Test
+    void check_if_sort_button_text_is_descending_when_sortstate_is_ascending(){
+        // given
+        homeController.sortState = SortState.ASCENDING;
+        // when
+        String actual = homeController.reverseMovies();
+
+        String expected = "Sort (desc)";
+
+        // then
+        assertEquals(expected,actual);
+    }
+
+    @Test
+    void check_if_sort_button_text_is_ascending_when_sortstate_is_descending(){
+        // given
+        homeController.sortState = SortState.DESCENDING;
+        // when
+        String actual = homeController.reverseMovies();
+
+        String expected = "Sort (asc)";
+
+        // then
+        assertEquals(expected,actual);
+    }
+    @Test
+    void check_if_Illegal_Argument_Exception_is_thrown_when_invalid_sort_state_is_given(){
+        // given
+        homeController.sortState = SortState.NONE;
+        // when & then
+        assertThrows(IllegalArgumentException.class, ()-> homeController.reverseMovies());
+    }
+
+
 }
