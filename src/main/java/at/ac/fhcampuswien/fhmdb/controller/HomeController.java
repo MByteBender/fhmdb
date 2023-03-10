@@ -2,6 +2,7 @@ package at.ac.fhcampuswien.fhmdb.controller;
 
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
+import at.ac.fhcampuswien.fhmdb.models.SortState;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
@@ -32,12 +33,14 @@ public class HomeController implements Initializable {
     public JFXButton sortBtn;
 
     public List<Movie> allMovies = Movie.initializeMovies();
-    private final ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
+    public ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
+    public SortState sortState = SortState.NONE;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         observableMovies.addAll(allMovies);         // add dummy data to observable list
+        sortMovies(observableMovies);
 
         // initialize UI stuff
         movieListView.setItems(observableMovies);   // set data of observable list to list view
@@ -48,16 +51,16 @@ public class HomeController implements Initializable {
 
 
         genreComboBox.getItems().addAll(Genre.values()); //add all genres to comboBox
-
+        genreComboBox.getSelectionModel().selectFirst();
 
 
         searchBtn.setOnAction(actionEvent -> {
-                    String filterElement = "";
+                    String genreFilter = "";
                     if (genreComboBox.getSelectionModel().getSelectedItem() != null) {
-                        filterElement = genreComboBox.getSelectionModel().getSelectedItem().toString();
+                        genreFilter = genreComboBox.getSelectionModel().getSelectedItem().toString();
                     }
                     String searchterm = searchField.getText();
-                    observableMovies.setAll(filterMovies(filterElement, searchterm));
+                    observableMovies.setAll(filterMovies(genreFilter, searchterm, allMovies));
                 }
         );
 
@@ -67,32 +70,22 @@ public class HomeController implements Initializable {
 
         // Sort button example:
         sortBtn.setOnAction(actionEvent -> {
-            if(sortBtn.getText().equals("Sort (asc)")) {
 
-
-                sortMovies(observableMovies);
-                // TODO sort observableMovies ascending
-                sortBtn.setText("Sort (desc)");
-            } else {
-
-                sortMovies(observableMovies);
-                // TODO sort observableMovies descending
-                sortBtn.setText("Sort (asc)");
-            }
+            this.sortBtn.setText(reverseMovies());
         });
     }
 
 
     /** Filters Movies with searchterm
      *
-     * @param filterElement
+     * @param genreFilter
      * @param searchTerm
      * @return ArrayList
      */
-    public List<Movie> filterMovies(String filterElement, String searchTerm) {
+    public List<Movie> filterMovies(String genreFilter, String searchTerm, List<Movie> allMovies) {
         List<Movie> filteredMovies = new ArrayList<>();
 
-        if (filterElement.equals("NO_GENRE_FILTER") || genreComboBox.getSelectionModel().getSelectedItem() == null){
+        if (genreFilter.equals("NO_GENRE_FILTER")){
             for (Movie movie : allMovies){
                 if (movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
                     movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase())){
@@ -104,7 +97,7 @@ public class HomeController implements Initializable {
             for (Movie movie : allMovies) {
                 List<Genre> genres = movie.getGenres();
                 for (Genre genre : genres) {
-                    if (genre.toString().toUpperCase().contains(filterElement) &&
+                    if (genre.toString().toUpperCase().contains(genreFilter) &&
                             (movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
                                     movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase()))) {
                         filteredMovies.add(movie);
@@ -116,25 +109,29 @@ public class HomeController implements Initializable {
     }
 
 
+    /** Sorts Movies ascending
+     * @param observableMovies
+     * @return void
+     */
     public void sortMovies(ObservableList<Movie> observableMovies){
-        if (sortBtn.getText().equals("Sort (asc)")){
-            observableMovies.sort(Comparator.comparing(Movie::getTitle));
-        } else if (sortBtn.getText().equals("Sort (desc)")){
-            observableMovies.sort(Comparator.comparing(Movie::getTitle).reversed());
-        }
+        observableMovies.sort (Comparator.comparing(Movie::getTitle));
+        sortState = SortState. ASCENDING;
     }
 
 
-//    public ObservableList<Movie> sortMovies(ObservableList<Movie> observableMovies){
-//        if (sortBtn.getText().equals("Sort (asc)")){
-//            observableMovies.sort(Comparator.comparing(Movie::getTitle));
-//        } else if (sortBtn.getText().equals("Sort (desc)")){
-//            observableMovies.sort(Comparator.comparing(Movie::getTitle).reversed());
-//        }
-//
-//        return observableMovies;
-//
-////        sortState = SortState.ASCENDING;
-//    }
+    /** reverses Movielist depending on SortState
+     * @return void
+     */
+    public String reverseMovies() throws IllegalArgumentException {
+        if (this.sortState == SortState.ASCENDING) {
+            FXCollections.reverse(observableMovies);
+            this.sortState = SortState.DESCENDING;
+            return "Sort (desc)";
+        } else if (this.sortState == SortState.DESCENDING) {
+            FXCollections.reverse(observableMovies);
+            this.sortState = SortState.ASCENDING;
+            return "Sort (asc)";
+        } else throw new IllegalArgumentException("Kein gültiger Sortstate "+ sortState.toString());
+    }
 
 }

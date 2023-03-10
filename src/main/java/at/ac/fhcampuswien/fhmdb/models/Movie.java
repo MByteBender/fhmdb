@@ -3,6 +3,7 @@ package at.ac.fhcampuswien.fhmdb.models;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Movie {
     private String title;
@@ -27,6 +28,20 @@ public class Movie {
 
     public List<Genre> getGenres() {
         return genres;
+    }
+
+
+    @Override
+    public boolean equals(Object Movie) {
+        if (this == Movie) return true;
+        if (Movie == null || getClass() != Movie.getClass()) return false;
+        Movie movie = (Movie) Movie;
+        return Objects.equals(title, movie.title) && Objects.equals(description, movie.description) && Objects.equals(genres, movie.genres);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, description, genres);
     }
 
     public static List<Movie> initializeMovies(){
