@@ -124,11 +124,11 @@ public class HomeController implements Initializable {
         if (this.sortState == SortState.ASCENDING) {
             FXCollections.reverse(observableMovies);
             this.sortState = SortState.DESCENDING;
-            return "Sort (desc)";
+            return "Sort (asc)";
         } else if (this.sortState == SortState.DESCENDING) {
             FXCollections.reverse(observableMovies);
             this.sortState = SortState.ASCENDING;
-            return "Sort (asc)";
+            return "Sort (desc)";
         } else throw new IllegalArgumentException("Kein gültiger Sortstate "+ sortState.toString());
     }
 

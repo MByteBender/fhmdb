@@ -226,9 +226,9 @@ class HomeControllerTest {
         assertEquals(expected,homeController.observableMovies);
     }
     @Test
-    void check_if_sort_button_text_is_descending_when_sortstate_is_ascending(){
+    void when_sort_button_text_is_decending_then_list_is_sorted_ascending(){
         // given
-        homeController.sortState = SortState.ASCENDING;
+        homeController.sortState = SortState.DESCENDING;
         // when
         String actual = homeController.reverseMovies();
 
@@ -238,9 +238,9 @@ class HomeControllerTest {
     }
 
     @Test
-    void check_if_sort_button_text_is_ascending_when_sortstate_is_descending(){
+    void when_sort_button_text_is_ascending_then_list_is_sorted_decending(){
         // given
-        homeController.sortState = SortState.DESCENDING;
+        homeController.sortState = SortState.ASCENDING;
         // when
         String actual = homeController.reverseMovies();
 
@@ -249,6 +249,9 @@ class HomeControllerTest {
         String expected = "Sort (asc)";
         assertEquals(expected,actual);
     }
+
+
+
     @Test
     void check_if_Illegal_Argument_Exception_is_thrown_when_invalid_sort_state_is_given(){
         // given
