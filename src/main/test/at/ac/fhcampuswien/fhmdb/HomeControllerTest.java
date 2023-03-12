@@ -226,11 +226,12 @@ class HomeControllerTest {
         assertEquals(expected,homeController.observableMovies);
     }
     @Test
-    void when_sort_button_text_is_decending_then_list_is_sorted_ascending(){
+    void when_sort_state_is_Ascending_sort_button_text_is_descending(){
         // given
         homeController.sortState = SortState.DESCENDING;
+
         // when
-        String actual = homeController.reverseMovies();
+        String actual = homeController.reverseMovies(); //sortstae changes in Method to ASCENDING
 
         // then
         String expected = "Sort (desc)";
@@ -238,12 +239,11 @@ class HomeControllerTest {
     }
 
     @Test
-    void when_sort_button_text_is_ascending_then_list_is_sorted_decending(){
+    void when_sort_state_is_Descending_sort_button_text_is_ascending(){
         // given
         homeController.sortState = SortState.ASCENDING;
         // when
-        String actual = homeController.reverseMovies();
-
+        String actual = homeController.reverseMovies(); //sortstae changes in Method to Descending
 
         // then
         String expected = "Sort (asc)";
