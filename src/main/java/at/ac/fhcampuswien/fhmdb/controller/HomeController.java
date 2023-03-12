@@ -37,10 +37,12 @@ public class HomeController implements Initializable {
 
     public SortState sortState = SortState.NONE;
 
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         observableMovies.addAll(allMovies);         // add dummy data to observable list
         sortMovies(observableMovies);
+
 
         // initialize UI stuff
         movieListView.setItems(observableMovies);   // set data of observable list to list view
@@ -55,14 +57,10 @@ public class HomeController implements Initializable {
 
 
         searchBtn.setOnAction(actionEvent -> {
-                    String genreFilter = "";
-                    if (genreComboBox.getSelectionModel().getSelectedItem() != null) {
-                        genreFilter = genreComboBox.getSelectionModel().getSelectedItem().toString();
-                    }
-                    String searchterm = searchField.getText();
-                    observableMovies.setAll(filterMovies(genreFilter, searchterm, allMovies));
-                }
-        );
+            String genreFilter = genreComboBox.getSelectionModel().getSelectedItem().toString();
+            String searchterm = searchField.getText();
+            observableMovies.setAll(filterMovies(genreFilter, searchterm, allMovies));
+        });
 
 
         // TODO add event handlers to buttons and call the regarding methods
@@ -79,6 +77,7 @@ public class HomeController implements Initializable {
     /** Filters Movies with searchterm
      * @param genreFilter
      * @param searchTerm
+     * @param allMovies
      * @return ArrayList
      */
     public List<Movie> filterMovies(String genreFilter, String searchTerm, List<Movie> allMovies) {
@@ -114,7 +113,7 @@ public class HomeController implements Initializable {
      */
     public void sortMovies(ObservableList<Movie> observableMovies){
         observableMovies.sort (Comparator.comparing(Movie::getTitle));
-        sortState = SortState. ASCENDING;
+        sortState = SortState.ASCENDING;
     }
 
 

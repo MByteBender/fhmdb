@@ -4,20 +4,13 @@ import at.ac.fhcampuswien.fhmdb.controller.HomeController;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.models.SortState;
-import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,9 +51,8 @@ class HomeControllerTest {
         // when
         List<Movie> actual = homeController.filterMovies("NO_GENRE_FILTER","", allMovies);
 
-        List<Movie> expected = allMovies;
-
         // then
+        List<Movie> expected = Movie.initializeMovies();
         assertEquals(expected, actual);
 
     }
@@ -74,9 +66,8 @@ class HomeControllerTest {
         // when
         List<Movie> actual = homeController.filterMovies("ACTION","asdfasdfsaf", allMovies);
 
-        List<Movie> expected = new ArrayList<>();
-
         // then
+        List<Movie> expected = new ArrayList<>();
         assertEquals(expected, actual);
     }
     @Test
@@ -87,6 +78,7 @@ class HomeControllerTest {
         // when
         List<Movie> actual = homeController.filterMovies("ACTION","", allMovies);
 
+        // then
         List<Movie> expected = new ArrayList<>();
         expected.add(new Movie(
                 "The Matrix",
@@ -96,8 +88,6 @@ class HomeControllerTest {
                 "The Matrix 2",
                 "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
                 Arrays.asList(Genre.ACTION, Genre.SCIENCE_FICTION)));
-
-        // then
         assertEquals(expected, actual);
     }
 
@@ -109,41 +99,39 @@ class HomeControllerTest {
         // when
         List<Movie> actual = homeController.filterMovies("ADVENTURE","JuRaSSic PARk", allMovies);
 
+        // then
         List<Movie> expected = new ArrayList<>();
         expected.add(new Movie(
                 "Jurassic Park",
                 "A pragmatic paleontologist visiting an almost complete theme park is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.",
                 Arrays.asList(Genre.ADVENTURE, Genre.SCIENCE_FICTION, Genre.THRILLER)
         ));
-
-        // then
         assertEquals(expected, actual);
     }
     @Test
-    void filter_movies_after_genre_when_a_Genre_is_selcted_and_a_searchters_is_in_searchbox(){
+    void filter_movies_after_genre_when_a_Genre_is_selcted_and_a_searchterm_is_in_searchbox(){
         // given
         List<Movie> allMovies = Movie.initializeMovies();
 
         // when
         List<Movie> actual = homeController.filterMovies("ACTION","The Matrix 2", allMovies);
 
+        // then
         List<Movie> expected = new ArrayList<>();
         expected.add(new Movie(
                 "The Matrix 2",
                 "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
                 Arrays.asList(Genre.ACTION, Genre.SCIENCE_FICTION)));
-
-        // then
         assertEquals(expected, actual);
     }
 
     @Test
-    void filter_all_movies_by_title_and_descripton_when_no_filter_is_applyed(){
+    void filter_all_movies_by_title_and_descripton_and_ignore_genre_when_no_filter_is_applyed(){
         // given
         List<Movie> allMovies = Movie.initializeMovies();
 
         // when
-        List<Movie> actual = homeController.filterMovies("NO_GENRE_FILTER","The Matrix", allMovies);
+        List<Movie> actual = homeController.filterMovies("NO_GENRE_FILTER","li", allMovies);
 
         // then
         List<Movie> expected = new ArrayList<>();
@@ -155,12 +143,16 @@ class HomeControllerTest {
                 "The Matrix 2",
                 "A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.",
                 Arrays.asList(Genre.ACTION, Genre.SCIENCE_FICTION)));
+        expected.add(new Movie(
+                "Pulp Fiction",
+                "The lives of two mob hitmen, a boxer, a gangster's wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
+                Arrays.asList(Genre.DRAMA, Genre.CRIME, Genre.THRILLER)));
 
         assertEquals(expected, actual);
     }
 
     @Test
-    void sort_unsorted_list_ascending_method_is_called_at_homecontroller_initializing(){
+    void sort_unsorted_list_ascending_after_title(){
         // given
         ObservableList<Movie> sortList = testList;
 
@@ -240,9 +232,8 @@ class HomeControllerTest {
         // when
         String actual = homeController.reverseMovies();
 
-        String expected = "Sort (desc)";
-
         // then
+        String expected = "Sort (desc)";
         assertEquals(expected,actual);
     }
 
@@ -253,9 +244,9 @@ class HomeControllerTest {
         // when
         String actual = homeController.reverseMovies();
 
-        String expected = "Sort (asc)";
 
         // then
+        String expected = "Sort (asc)";
         assertEquals(expected,actual);
     }
     @Test

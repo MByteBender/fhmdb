@@ -21,8 +21,7 @@
 
 .text-black-italic {
     -fx-font-style: italic;
-    -fx-text-fill: black;
-
+    -fx-text-fill: white;
 }
 
 .list-view .list-cell:even {
