@@ -15,6 +15,7 @@ import javafx.scene.control.TextField;
 
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HomeController implements Initializable {
     @FXML
@@ -81,28 +82,24 @@ public class HomeController implements Initializable {
      * @return ArrayList
      */
     public List<Movie> filterMovies(String genreFilter, String searchTerm, List<Movie> allMovies) {
-        List<Movie> filteredMovies = new ArrayList<>();
+        List<Movie> filteredMovies;
 
         if (genreFilter.equals("NO_GENRE_FILTER")){
-            for (Movie movie : allMovies){
-                if (movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                    movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase())){
-                    filteredMovies.add(movie);
-                }
-            }
-
+            filteredMovies= allMovies
+                    .stream()
+                    .filter(movie -> movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
+                            movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase()))
+                    .collect(Collectors.toList());
         } else {
-            for (Movie movie : allMovies) {
-                List<Genre> genres = movie.getGenres();
-                for (Genre genre : genres) {
-                    if (genre.toString().toUpperCase().contains(genreFilter) &&
-                            (movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                                    movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase()))) {
-                        filteredMovies.add(movie);
-                    }
-                }
-            }
+            filteredMovies = allMovies
+                    .stream()
+                    .filter(movie -> movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
+                            movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase()))
+                    .filter(movie -> movie.getGenres().contains(Genre.valueOf(genreFilter)))
+                    .collect(Collectors.toList());
+
         }
+
         return filteredMovies;
     }
 
@@ -131,7 +128,7 @@ public class HomeController implements Initializable {
             return "Sort (desc)";
         } else throw new IllegalArgumentException("Kein gültiger Sortstate "+ sortState.toString());
     }
-    ////test
+
 
 
 }
