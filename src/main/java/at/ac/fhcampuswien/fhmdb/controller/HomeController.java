@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.fhmdb.controller;
 
+import at.ac.fhcampuswien.fhmdb.api.MovieAPI;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.models.SortState;
@@ -9,6 +10,7 @@ import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
@@ -41,37 +43,25 @@ public class HomeController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        observableMovies.addAll(allMovies);         // add dummy data to observable list
+        initializeState();
+        initializeLayout();
         sortMovies(observableMovies);
+    }
 
+    public void initializeState() {
+        //allMovies = Movie.initializeMovies();
+        allMovies = MovieAPI.getAllMovies();
+        observableMovies.clear();
+        observableMovies.addAll(allMovies); // add all movies to the observable list
+        sortState = SortState.NONE;
+    }
 
-        // initialize UI stuff
-        movieListView.setItems(observableMovies);   // set data of observable list to list view
-        movieListView.setCellFactory(movieListView -> new MovieCell()); // use custom cell factory to display data
-
-        // TODO add genre filter items with genreComboBox.getItems().addAll(...)
+    public void initializeLayout() {
+        movieListView.setItems(observableMovies);   // set the items of the listview to the observable list
+        movieListView.setCellFactory(movieListView -> new MovieCell()); // apply custom cells to the listview
+        genreComboBox.getItems().addAll(Genre.values());
+        genreComboBox.getSelectionModel().selectFirst();// add all genres to the combobox
         genreComboBox.setPromptText("Filter by Genre");
-
-
-        genreComboBox.getItems().addAll(Genre.values()); //add all genres to comboBox
-        genreComboBox.getSelectionModel().selectFirst();
-
-
-        searchBtn.setOnAction(actionEvent -> {
-            String genreFilter = genreComboBox.getSelectionModel().getSelectedItem().toString();
-            String searchterm = searchField.getText();
-            observableMovies.setAll(filterMovies(genreFilter, searchterm, allMovies));
-        });
-
-
-        // TODO add event handlers to buttons and call the regarding methods
-        // either set event handlers in the fxml file (onAction) or add them here
-
-        // Sort button example:
-        sortBtn.setOnAction(actionEvent -> {
-
-            this.sortBtn.setText(reverseMovies());
-        });
     }
 
 
@@ -84,9 +74,11 @@ public class HomeController implements Initializable {
     public List<Movie> filterMovies(String genreFilter, String searchTerm, List<Movie> allMovies) {
         List<Movie> filteredMovies;
 
+        if(allMovies == null) {
+            throw new IllegalArgumentException("movies must not be null");
+        }
         if (genreFilter.equals("NO_GENRE_FILTER")){
-            filteredMovies= allMovies
-                    .stream()
+            filteredMovies= allMovies.stream()
                     .filter(movie -> movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
                             movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase()))
                     .collect(Collectors.toList());
@@ -106,7 +98,6 @@ public class HomeController implements Initializable {
 
     /** Sorts Movies ascending
      * @param observableMovies
-     * @return void
      */
     public void sortMovies(ObservableList<Movie> observableMovies){
         observableMovies.sort (Comparator.comparing(Movie::getTitle));
@@ -129,6 +120,15 @@ public class HomeController implements Initializable {
         } else throw new IllegalArgumentException("Kein gültiger Sortstate "+ sortState.toString());
     }
 
+    public void searchBtnClicked(ActionEvent actionEvent){
+        String genreFilter = genreComboBox.getSelectionModel().getSelectedItem().toString();
+        String searchterm = searchField.getText();
+        observableMovies.setAll(filterMovies(genreFilter, searchterm, allMovies));
+    }
+
+    public void sortBtnClicked(ActionEvent actionEvent) {
+        reverseMovies();
+    }
 
 
 }

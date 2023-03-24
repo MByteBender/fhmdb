@@ -6,17 +6,49 @@ import java.util.List;
 import java.util.Objects;
 
 public class Movie {
-    private String title;
-    private String description;
 
-    private List<Genre> genres;
-    // TODO add more properties here
+    private final String id;
+    private final String title;
+    private final String description;
+    private final List<Genre> genres;
+    private final int releaseYear;
+    private final String imgUrl;
+    private final int lengthInMinutes;
+    private final List<String> directors = new ArrayList<>();
+    private final List<String> writers = new ArrayList<>();
+    private final List<String> mainCast = new ArrayList<>();
+    private final double rating;
 
-    public Movie(String title, String description, List<Genre>genres) {
+
+    public Movie(String title, String description, List<Genre> genres) {
         this.title = title;
         this.description = description;
         this.genres = genres;
+        this.id = null;
+        this.releaseYear = 0;
+        this.imgUrl = "";
+        this.lengthInMinutes = 0;
+        this.rating = 0;
     }
+
+
+    public Movie(String id, String title, String description, List<Genre> genres, int releaseYear, String imageUrl, int lengthInMinutes, List<String> directors, List<String> writers, List<String> mainCast, double rating) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.genres = genres;
+        this.releaseYear = releaseYear;
+        this.imgUrl = imageUrl;
+        this.lengthInMinutes = lengthInMinutes;
+        this.rating = rating;
+    }
+
+
+
+
+
+
+
 
     public String getTitle() {
         return title;
@@ -32,11 +64,19 @@ public class Movie {
 
 
     @Override
-    public boolean equals(Object Movie) {
-        if (this == Movie) return true;
-        if (Movie == null || getClass() != Movie.getClass()) return false;
-        Movie movie = (Movie) Movie;
-        return Objects.equals(title, movie.title) && Objects.equals(description, movie.description) && Objects.equals(genres, movie.genres);
+    public boolean equals(Object obj) {
+        if(obj == null) {
+            return false;
+        }
+        if(obj == this) {
+            return true;
+        }
+        if(!(obj instanceof Movie other)) {
+            return false;
+        }
+        return this.title.equals(other.title) &&
+                this.description.equals(other.description) &&
+                this.genres.equals(other.genres);
     }
 
     @Override
@@ -68,4 +108,39 @@ public class Movie {
                 Arrays.asList(Genre.ADVENTURE, Genre.SCIENCE_FICTION, Genre.THRILLER)));
         return movies;
     }
+
+
+    public String getId() {
+        return id;
+    }
+
+    public int getReleaseYear() {
+        return releaseYear;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public int getLengthInMinutes() {
+        return lengthInMinutes;
+    }
+
+    public List<String> getDirectors() {
+        return directors;
+    }
+
+    public List<String> getWriters() {
+        return writers;
+    }
+
+    public List<String> getMainCast() {
+        return mainCast;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+
 }
