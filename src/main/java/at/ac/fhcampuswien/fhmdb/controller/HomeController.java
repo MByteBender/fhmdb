@@ -30,8 +30,13 @@ public class HomeController implements Initializable {
     public JFXListView movieListView;
 
     @FXML
-    public JFXComboBox <Genre> genreComboBox;
+    public JFXComboBox genreComboBox;
 
+    @FXML
+    public JFXComboBox releaseYearComboBox;
+
+    @FXML
+    public JFXComboBox ratingComboBox;
     @FXML
     public JFXButton sortBtn;
 
@@ -49,7 +54,7 @@ public class HomeController implements Initializable {
     }
 
     public void initializeState() {
-        //allMovies = Movie.initializeMovies();
+//        allMovies = Movie.initializeMovies();
         allMovies = MovieAPI.getAllMovies();
         observableMovies.clear();
         observableMovies.addAll(allMovies); // add all movies to the observable list
@@ -58,42 +63,86 @@ public class HomeController implements Initializable {
 
     public void initializeLayout() {
         movieListView.setItems(observableMovies);   // set the items of the listview to the observable list
-        movieListView.setCellFactory(movieListView -> new MovieCell()); // apply custom cells to the listview
-        genreComboBox.getItems().addAll(Genre.values());
-        genreComboBox.getSelectionModel().selectFirst();// add all genres to the combobox
+        movieListView.setCellFactory(movieListView -> new MovieCell());// apply custom cells to the listview
         genreComboBox.setPromptText("Filter by Genre");
+        genreComboBox.getItems().add("No filter");
+        genreComboBox.getItems().addAll(Genre.values());
+        releaseYearComboBox.setPromptText("Filter by Release Year");
+        ratingComboBox.setPromptText("Filter by Rating");
+        ratingComboBox.getItems().add("No Rating Filter");
+        ratingComboBox.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
     }
 
 
-    /** Filters Movies with searchterm
-     * @param genreFilter
-     * @param searchTerm
-     * @param allMovies
-     * @return ArrayList
-     */
-    public List<Movie> filterMovies(String genreFilter, String searchTerm, List<Movie> allMovies) {
-        List<Movie> filteredMovies;
 
-        if(allMovies == null) {
+
+    public List<Movie> filterByQuery(List<Movie> movies, String query){
+        if(query == null || query.isEmpty()) return movies;
+
+        if(movies == null) {
             throw new IllegalArgumentException("movies must not be null");
         }
-        if (genreFilter.equals("NO_GENRE_FILTER")){
-            filteredMovies= allMovies.stream()
-                    .filter(movie -> movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                            movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase()))
-                    .collect(Collectors.toList());
-        } else {
-            filteredMovies = allMovies
-                    .stream()
-                    .filter(movie -> movie.getTitle().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                            movie.getDescription().toLowerCase().contains(searchTerm.toLowerCase()))
-                    .filter(movie -> movie.getGenres().contains(Genre.valueOf(genreFilter)))
-                    .collect(Collectors.toList());
 
+        return movies.stream()
+                .filter(Objects::nonNull)
+                .filter(movie ->
+                        movie.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                                movie.getDescription().toLowerCase().contains(query.toLowerCase())
+                )
+                .toList();
+    }
+
+
+    public List<Movie> filterByGenre(List<Movie> movies, Genre genre){
+        if(genre == null) return movies;
+
+        if(movies == null) {
+            throw new IllegalArgumentException("movies must not be null");
         }
 
-        return filteredMovies;
+        return movies.stream()
+                .filter(Objects::nonNull)
+                .filter(movie -> movie.getGenres().contains(genre))
+                .toList();
     }
+
+
+    public List<Movie> filterByRating(List<Movie> movies, int rating){
+
+
+        if(movies == null) {
+            throw new IllegalArgumentException("movies must not be null");
+        }
+
+        return movies.stream()
+                .filter(Objects::nonNull)
+                .filter(movie -> (int) movie.getRating() == rating)
+                .toList();
+
+    }
+    public void applyAllFilters(String searchQuery, Object genre, Object rating) {
+        List<Movie> filteredMovies = allMovies;
+
+        if (!searchQuery.isEmpty()) {
+            filteredMovies = filterByQuery(filteredMovies, searchQuery);
+        }
+
+        if (genre != null && !genre.toString().equals("No filter")) {
+            filteredMovies = filterByGenre(filteredMovies, Genre.valueOf(genre.toString()));
+        }
+        if (rating != null && !rating.toString().equals("No filter")) {
+            try {
+                int ratingValue = Integer.parseInt(rating.toString());
+                filteredMovies = filterByRating(filteredMovies, ratingValue);
+            } catch (NumberFormatException e) {
+                // ignore the exception and don't filter by rating
+            }
+        }
+
+        observableMovies.clear();
+        observableMovies.addAll(filteredMovies);
+    }
+
 
 
     /** Sorts Movies ascending
@@ -121,9 +170,13 @@ public class HomeController implements Initializable {
     }
 
     public void searchBtnClicked(ActionEvent actionEvent){
-        String genreFilter = genreComboBox.getSelectionModel().getSelectedItem().toString();
-        String searchterm = searchField.getText();
-        observableMovies.setAll(filterMovies(genreFilter, searchterm, allMovies));
+        String searchQuery = searchField.getText().trim().toLowerCase();
+        Object genre = genreComboBox.getSelectionModel().getSelectedItem();
+        Object rating =  ratingComboBox.getSelectionModel().getSelectedItem();
+
+        applyAllFilters(searchQuery, genre, rating);
+
+
     }
 
     public void sortBtnClicked(ActionEvent actionEvent) {
