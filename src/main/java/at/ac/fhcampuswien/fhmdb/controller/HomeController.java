@@ -45,6 +45,8 @@ public class HomeController implements Initializable {
 
     public SortState sortState = SortState.NONE;
 
+    public List<Integer> releaseYear = new ArrayList(124);
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -62,15 +64,22 @@ public class HomeController implements Initializable {
     }
 
     public void initializeLayout() {
+        for (int i = 0; i < 124; i++){
+            releaseYear.add(i,2023 - i);
+        }
         movieListView.setItems(observableMovies);   // set the items of the listview to the observable list
         movieListView.setCellFactory(movieListView -> new MovieCell());// apply custom cells to the listview
         genreComboBox.setPromptText("Filter by Genre");
         genreComboBox.getItems().add("No filter");
         genreComboBox.getItems().addAll(Genre.values());
         releaseYearComboBox.setPromptText("Filter by Release Year");
+        releaseYearComboBox.getItems().addAll(releaseYear);
         ratingComboBox.setPromptText("Filter by Rating");
         ratingComboBox.getItems().add("No Rating Filter");
         ratingComboBox.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
+
+
+
     }
 
 
