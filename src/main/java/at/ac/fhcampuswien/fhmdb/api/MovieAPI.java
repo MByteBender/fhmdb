@@ -12,7 +12,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MovieAPI {
-    private static final String URL = "http://prog2.fh-campuswien.ac.at/movies";
+//    private static final String URL = "http://prog2.fh-campuswien.ac.at/movies";
+        private static final String URL = "http://localhost:8080/movies";
+
     private static final String DELIMITER = "&";
 
     private static String buildUrl(String query, Genre genre, String releaseYear, String ratingFrom){
