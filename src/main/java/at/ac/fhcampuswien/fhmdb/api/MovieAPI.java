@@ -3,65 +3,88 @@ package at.ac.fhcampuswien.fhmdb.api;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 
+import com.google.gson.GsonBuilder;
 import okhttp3.*;
 import com.google.gson.Gson;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MovieAPI {
-//    private static final String URL = "http://prog2.fh-campuswien.ac.at/movies";
-        private static final String URL = "http://localhost:8080/movies";
 
-    private static final String DELIMITER = "&";
-
-    private static String buildUrl(String query, Genre genre, String releaseYear, String ratingFrom){
-        StringBuilder url = new StringBuilder(URL);
-
-        if((query != null && !query.isEmpty()) || genre != null || releaseYear != null || ratingFrom != null){
-            url.append("?");
-            if(query != null && !query.isEmpty()){
-                url.append("query=").append(query).append(DELIMITER);
-            }
-            if(genre != null){
-                url.append("genre=").append(genre).append(DELIMITER);
-            }
-            if (releaseYear != null) {
-                url.append("releaseYear=").append(releaseYear).append(DELIMITER);
-            }
-            if (ratingFrom != null) {
-                url.append("ratingFrom=").append(ratingFrom).append(DELIMITER);
-            }
-        }
-        return url.toString();
+    OkHttpClient client = new OkHttpClient();
+    String baseURL = "http://localhost:8080";
+    Gson gson = null;
+    public MovieAPI() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Movie.class, new MovieTypeAdapter());
+        this.gson = gsonBuilder.create();
     }
-
-    public static List<Movie> getAllMovies(){
-        return getAllMovies(null, null, null, null);
-    }
-    public static List<Movie> getAllMovies(String query, Genre genre, String releaseYear, String ratingFrom){
-        String url = buildUrl(query, genre, releaseYear, ratingFrom);
-
-        Request request = new Request.Builder()
-                .url(url)
-                .removeHeader("User-Agent")
-                .addHeader("User-Agent", "http.agent")
-                .build();
-
-        OkHttpClient client = new OkHttpClient();
-        try (Response response = client.newCall(request).execute()){
-            String responseBody = response.body().string();
-            Gson gson = new Gson();
-            Movie[] movies = gson.fromJson(responseBody, Movie[].class);
-
+    public List<Movie> getFullMovieList() throws IOException {
+        String url = baseURL + "/movies";
+        Request request = new Request.Builder().url(url).removeHeader("User-Agent").addHeader("User-Agent", "http.agent").build();
+        try(Response response = client.newCall(request).execute()) {
+            String responseString = response.body().string();
+            Movie[] movies = this.gson.fromJson(responseString, Movie[].class);
             return Arrays.asList(movies);
+
         }
-        catch (Exception e){
-            System.err.println(e.getMessage());
-        }
-        return new ArrayList<>();
     }
 
+    public List<Movie> getFilteredMovieList(String searchText, Genre genre, String releaseYear, String rating) throws IOException {
+        boolean firstQuery = true;
+        StringBuilder url = new StringBuilder(this.baseURL + "/movies");
+        if (!searchText.equals("")) {
+            if (firstQuery) {
+                url.append("?");
+                firstQuery = false;
+            }else {
+                url.append("&");
+            }
+            url.append("string=").append(searchText);
+        }
+        if (genre != Genre.No_Genre_Filter) {
+            if (firstQuery) {
+                url.append("?");
+                firstQuery = false;
+            }else {
+                url.append("&");
+            }
+            url.append("genre=").append(genre.toString());
+        }
+        if (!releaseYear.equals("No release year filter")) {
+            if (firstQuery) {
+                url.append("?");
+                firstQuery = false;
+            }else {
+                url.append("&");
+            }
+            url.append("releaseYear=").append(releaseYear);
+        }
+        if (!rating.equals("No rating filter")) {
+            if (firstQuery) {
+                url.append("?");
+            }else {
+                url.append("&");
+            }
+            url.append("rating=").append(Double.parseDouble(rating));
+        }
+        System.out.println(url.toString());
+        Request request = new Request.Builder().url(url.toString()).removeHeader("User-Agent").addHeader("User-Agent", "http.agent").build();
+        try (Response response = client.newCall(request).execute()) {
+            String responseString = response.body().string();
+            Movie[] movies = this.gson.fromJson(responseString, Movie[].class);
+            return Arrays.asList(movies).stream()
+                    .filter(i -> searchText.equals("")  || (i.getTitle().contains(searchText) || i.getDescription().contains(searchText)))
+                    .filter(i -> genre == Genre.No_Genre_Filter || i.getGenres().contains(genre))
+                    .filter(i -> releaseYear.equals("No release year filter") || i.getReleaseYear() == Integer.parseInt(releaseYear))
+                    .filter(i -> rating.equals("No rating filter") || i.getRating() == Double.parseDouble(rating))
+                    .collect(Collectors.toList());
+
+        }
+    }
 }
