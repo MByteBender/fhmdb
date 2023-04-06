@@ -45,7 +45,7 @@ public class MovieAPI {
             }else {
                 url.append("&");
             }
-            url.append("string=").append(searchText);
+            url.append("query=").append(searchText);
         }
         if (genre != Genre.No_Genre_Filter) {
             if (firstQuery) {
@@ -71,20 +71,14 @@ public class MovieAPI {
             }else {
                 url.append("&");
             }
-            url.append("rating=").append(Double.parseDouble(rating));
+            url.append("ratingFrom=").append(Double.parseDouble(rating));
         }
         System.out.println(url.toString());
         Request request = new Request.Builder().url(url.toString()).removeHeader("User-Agent").addHeader("User-Agent", "http.agent").build();
         try (Response response = client.newCall(request).execute()) {
             String responseString = response.body().string();
             Movie[] movies = this.gson.fromJson(responseString, Movie[].class);
-            return Arrays.asList(movies).stream()
-                    .filter(i -> searchText.equals("")  || (i.getTitle().contains(searchText) || i.getDescription().contains(searchText)))
-                    .filter(i -> genre == Genre.No_Genre_Filter || i.getGenres().contains(genre))
-                    .filter(i -> releaseYear.equals("No release year filter") || i.getReleaseYear() == Integer.parseInt(releaseYear))
-                    .filter(i -> rating.equals("No rating filter") || i.getRating() == Double.parseDouble(rating))
-                    .collect(Collectors.toList());
-
+            return Arrays.asList(movies);
         }
     }
 }
