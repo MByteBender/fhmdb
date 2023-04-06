@@ -15,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,27 +31,31 @@ public class HomeController implements Initializable {
     public JFXListView movieListView;
 
     @FXML
-    public JFXComboBox genreComboBox;
+    public JFXComboBox<Genre> genreComboBox;
 
     @FXML
-    public JFXComboBox releaseYearComboBox;
+    public JFXComboBox<String> releaseYearComboBox;
 
     @FXML
-    public JFXComboBox ratingComboBox;
+    public JFXComboBox<String> ratingComboBox;
     @FXML
     public JFXButton sortBtn;
+
 
     public List<Movie> allMovies = Movie.initializeMovies();
     public ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
 
     public SortState sortState = SortState.NONE;
 
-    public List releaseYear = new ArrayList(124);
-
+    MovieAPI movieAPI = new MovieAPI();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        initializeState();
+        try {
+            initializeState();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         initializeLayout();
         sortMovies(observableMovies);
         countMoviesFrom(observableMovies, "Peter Jackson");
@@ -59,31 +64,36 @@ public class HomeController implements Initializable {
                 .forEach(System.out::println);
     }
 
-    public void initializeState() {
+    public void initializeState() throws IOException {
 //        allMovies = Movie.initializeMovies();
-        allMovies = MovieAPI.getAllMovies();
+        allMovies = movieAPI.getFullMovieList();
         observableMovies.clear();
         observableMovies.addAll(allMovies); // add all movies to the observable list
         sortState = SortState.NONE;
     }
 
     public void initializeLayout() {
-        for (int i = 0; i < 124; i++){
-            releaseYear.add(i,2023 - i);
 
-        }
         movieListView.setItems(observableMovies);   // set the items of the listview to the observable list
         movieListView.setCellFactory(movieListView -> new MovieCell());// apply custom cells to the listview
-        genreComboBox.setPromptText("Filter by Genre");
-        genreComboBox.getItems().add("No filter");
-        genreComboBox.getItems().addAll(Genre.values());
-        releaseYearComboBox.setPromptText("Filter by Release Year");
-        releaseYearComboBox.getItems().add("No filter");
-        releaseYearComboBox.getItems().addAll(releaseYear);
-        ratingComboBox.setPromptText("Filter by Rating");
-        ratingComboBox.getItems().add("No filter");
-        ratingComboBox.getItems().addAll("1","2", "3", "4", "5");
 
+        genreComboBox.getItems().addAll(Genre.values());
+        genreComboBox.getSelectionModel().select(Genre.No_Genre_Filter);
+        releaseYearComboBox.getItems().add("No release year filter");
+        releaseYearComboBox.getSelectionModel().select("No release year filter");
+        ratingComboBox.getItems().add("No rating filter");
+        ratingComboBox.getSelectionModel().select("No rating filter");
+
+
+
+        List<String> yearList = new ArrayList<>();
+        observableMovies.stream().map(Movie::getReleaseYear).distinct().sorted(Comparator.reverseOrder()).map(String::valueOf).forEach(yearList::add);
+        this.releaseYearComboBox.getItems().addAll(yearList);
+
+
+        List<String> ratingList = new ArrayList<>();
+        observableMovies.stream().map(Movie::getRating).distinct().sorted(Comparator.reverseOrder()).map(String::valueOf).forEach(ratingList::add);
+        this.ratingComboBox.getItems().addAll(ratingList);
 
 
     }
@@ -136,9 +146,6 @@ public class HomeController implements Initializable {
 
     }
 
-    public List<Movie> filterWithAPI(String query, Genre genre, String releaseYear, String ratingFrom){
-        return MovieAPI.getAllMovies(query, genre, releaseYear, ratingFrom);
-    }
     public void applyAllFilters(String searchQuery, Object genre, Object rating) {
         List<Movie> filteredMovies = allMovies;
 
@@ -188,29 +195,14 @@ public class HomeController implements Initializable {
         } else throw new IllegalArgumentException("Kein gültiger Sortstate "+ sortState.toString());
     }
 
-    public void searchBtnClicked(ActionEvent actionEvent){
+    public void searchBtnClicked(ActionEvent actionEvent) throws IOException {
 
-        String searchQuery = searchField.getText();
-        if (searchQuery.isEmpty()){
-            searchQuery = null;
-        }
-        Object genre = genreComboBox.getSelectionModel().getSelectedItem();
-        if (genre != "No filter" && genre != null){
-            genre = Genre.valueOf(genreComboBox.getSelectionModel().getSelectedItem().toString());
-        } else genre = null;
-
-        Object releaseYear = releaseYearComboBox.getSelectionModel().getSelectedItem();
-        if (releaseYear != "No filter" && releaseYear != null){
-            releaseYear = String.valueOf(releaseYearComboBox.getSelectionModel().getSelectedItem().toString());
-        } else releaseYear = null;
-
-        Object ratingFrom = releaseYearComboBox.getSelectionModel().getSelectedItem();
-        if (ratingFrom != "No filter" && ratingFrom != null){
-            ratingFrom = String.valueOf(releaseYearComboBox.getSelectionModel().getSelectedItem().toString());
-        } else ratingFrom = null;
 
         observableMovies.clear();
-        observableMovies.addAll(filterWithAPI(searchQuery, (Genre) genre, (String) releaseYear, (String) ratingFrom));
+        observableMovies.addAll(movieAPI.getFilteredMovieList(searchField.getText(),
+                genreComboBox.getValue(), releaseYearComboBox.getValue(),
+                ratingComboBox.getValue()));
+
 
 
     }
