@@ -53,6 +53,10 @@ public class HomeController implements Initializable {
         initializeState();
         initializeLayout();
         sortMovies(observableMovies);
+        countMoviesFrom(observableMovies, "Peter Jackson");
+        getMoviesBetweenYears(observableMovies, 2001, 2010).stream()
+                .map(Movie::getReleaseYear)
+                .forEach(System.out::println);
     }
 
     public void initializeState() {
@@ -213,6 +217,43 @@ public class HomeController implements Initializable {
 
     public void sortBtnClicked(ActionEvent actionEvent) {
         reverseMovies();
+    }
+
+    /*public String getMostPopularActor(List<Movie> movies) {
+
+    }*/
+
+    /*public int getLongestMovieTitle(List<Movie> movies) {
+
+    }*/
+
+    public long countMoviesFrom(List<Movie> movies, String director) {
+
+        if(director == null || director.isEmpty()) return 0;
+
+        if(movies == null) {
+            throw new IllegalArgumentException("movies must not be null");
+        }
+
+        long numberOfFilms = movies.stream()
+                .filter(Objects::nonNull)
+                .filter(movie -> movie.getDirectors().contains(director))
+                .count();
+        System.out.println(numberOfFilms);
+        return numberOfFilms;
+    }
+
+    public List<Movie> getMoviesBetweenYears(List<Movie> movies, int startYear, int endYear) {
+
+        if(movies == null) {
+            throw new IllegalArgumentException("movies must not be null");
+        }
+
+        return movies.stream()
+                .filter(Objects::nonNull)
+                .filter(movie -> movie.getReleaseYear() > startYear && movie.getReleaseYear() < endYear)
+                .toList();
+
     }
 
 
