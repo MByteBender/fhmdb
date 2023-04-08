@@ -18,6 +18,7 @@ import javafx.scene.control.TextField;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class HomeController implements Initializable {
@@ -84,17 +85,13 @@ public class HomeController implements Initializable {
         ratingComboBox.getItems().add("No rating filter");
         ratingComboBox.getSelectionModel().select("No rating filter");
 
-
-
         List<String> yearList = new ArrayList<>();
         observableMovies.stream().map(Movie::getReleaseYear).distinct().sorted(Comparator.reverseOrder()).map(String::valueOf).forEach(yearList::add);
         this.releaseYearComboBox.getItems().addAll(yearList);
 
-
         List<String> ratingList = new ArrayList<>();
         observableMovies.stream().map(Movie::getRating).distinct().sorted(Comparator.reverseOrder()).map(String::valueOf).forEach(ratingList::add);
         this.ratingComboBox.getItems().addAll(ratingList);
-
 
     }
 
@@ -133,7 +130,6 @@ public class HomeController implements Initializable {
 
 
     public List<Movie> filterByRatingStream(List<Movie> movies, int rating){
-
 
         if(movies == null) {
             throw new IllegalArgumentException("movies must not be null");
@@ -197,27 +193,39 @@ public class HomeController implements Initializable {
 
     public void searchBtnClicked(ActionEvent actionEvent) throws IOException {
 
-
         observableMovies.clear();
         observableMovies.addAll(movieAPI.getFilteredMovieList(searchField.getText(),
                 genreComboBox.getValue(), releaseYearComboBox.getValue(),
                 ratingComboBox.getValue()));
-
-
-
     }
 
     public void sortBtnClicked(ActionEvent actionEvent) {
         reverseMovies();
     }
 
-    /*public String getMostPopularActor(List<Movie> movies) {
+    public String getMostPopularActor(List<Movie> movies) {
+        if (movies == null) {
+            throw new IllegalArgumentException("movies must not be null");
+        }
+        return movies.stream()
+                .flatMap(m -> m.getMainCast().stream())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElseThrow(() -> new RuntimeException("No main cast found"));
+    }
 
-    }*/
-
-    /*public int getLongestMovieTitle(List<Movie> movies) {
-
-    }*/
+    public int getLongestMovieTitle(List<Movie> movies) {
+        if (movies == null) {
+            throw new IllegalArgumentException("movies must not be null");
+        }
+        return movies.stream()
+                .map(Movie::getTitle)
+                .mapToInt(String::length)
+                .max()
+                .orElse(0);
+    }
 
     public long countMoviesFrom(List<Movie> movies, String director) {
 
