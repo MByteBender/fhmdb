@@ -59,6 +59,9 @@ public class HomeController implements Initializable {
         }
         initializeLayout();
         sortMovies(observableMovies);
+        System.out.println(getLongestMovieTitle(observableMovies));
+        System.out.println(getMostPopularActor(observableMovies));
+
         countMoviesFrom(observableMovies, "Peter Jackson");
         getMoviesBetweenYears(observableMovies, 2001, 2010).stream()
                 .map(Movie::getReleaseYear)
