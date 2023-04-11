@@ -66,6 +66,7 @@ public class HomeController implements Initializable {
         getMoviesBetweenYears(observableMovies, 2001, 2010).stream()
                 .map(Movie::getReleaseYear)
                 .forEach(System.out::println);
+
     }
 
     public void initializeState() throws IOException {
