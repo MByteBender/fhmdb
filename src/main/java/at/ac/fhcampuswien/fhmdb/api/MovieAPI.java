@@ -4,6 +4,8 @@ import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import okhttp3.*;
 import com.google.gson.Gson;
 
@@ -16,8 +18,9 @@ import java.util.stream.Collectors;
 
 public class MovieAPI {
 
+    public static final String DELIMITER = "&";
     OkHttpClient client = new OkHttpClient();
-    String baseURL = "http://localhost:8080";
+    final String BASE_URL = "http://localhost:8080";
     Gson gson = null;
     public MovieAPI() {
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -25,7 +28,7 @@ public class MovieAPI {
         this.gson = gsonBuilder.create();
     }
     public List<Movie> getFullMovieList() throws IOException {
-        String url = baseURL + "/movies";
+        String url = BASE_URL + "/movies";
         Request request = new Request.Builder().url(url).removeHeader("User-Agent").addHeader("User-Agent", "http.agent").build();
         try(Response response = client.newCall(request).execute()) {
             String responseString = response.body().string();
@@ -35,46 +38,42 @@ public class MovieAPI {
         }
     }
 
-    public List<Movie> getFilteredMovieList(String searchText, Genre genre, String releaseYear, String rating) throws IOException {
-        boolean firstQuery = true;
-        StringBuilder url = new StringBuilder(this.baseURL + "/movies");
-        if (!searchText.equals("")) {
-            if (firstQuery) {
-                url.append("?");
-                firstQuery = false;
-            }else {
-                url.append("&");
+    private  String buildUrl(String query, Genre genre, String releaseYear, String ratingFrom) {
+        StringBuilder url = new StringBuilder(BASE_URL+ "/movies");
+
+        if ( (query != null && !query.isEmpty()) ||
+                genre != null || releaseYear != null || ratingFrom != null) {
+
+            url.append("?");
+
+            // check all parameters and add them to the url
+            if (query != null && !query.isEmpty()) {
+                url.append("query=").append(query).append(DELIMITER);
             }
-            url.append("query=").append(searchText);
-        }
-        if (genre != Genre.No_Genre_Filter) {
-            if (firstQuery) {
-                url.append("?");
-                firstQuery = false;
-            }else {
-                url.append("&");
+            if (genre != null) {
+                url.append("genre=").append(genre).append(DELIMITER);
             }
-            url.append("genre=").append(genre.toString());
-        }
-        if (!releaseYear.equals("No release year filter")) {
-            if (firstQuery) {
-                url.append("?");
-                firstQuery = false;
-            }else {
-                url.append("&");
+            if (releaseYear != null) {
+                url.append("releaseYear=").append(releaseYear).append(DELIMITER);
             }
-            url.append("releaseYear=").append(releaseYear);
-        }
-        if (!rating.equals("No rating filter")) {
-            if (firstQuery) {
-                url.append("?");
-            }else {
-                url.append("&");
+            if (ratingFrom != null) {
+                url.append("ratingFrom=").append(ratingFrom).append(DELIMITER);
             }
-            url.append("ratingFrom=").append(Double.parseDouble(rating));
         }
+
         System.out.println(url.toString());
-        Request request = new Request.Builder().url(url.toString()).removeHeader("User-Agent").addHeader("User-Agent", "http.agent").build();
+        return url.toString();
+    }
+    public List<Movie> getFilteredMovieList(String query, Genre genre, String releaseYear, String ratingFrom) throws IOException {
+        String url = buildUrl(query, genre, releaseYear, ratingFrom);
+        Request request = new Request.Builder()
+                .url(url)
+                .removeHeader("User-Agent")
+                .addHeader("User-Agent", "http.agent")
+                .build();
+
+
+        System.out.println("request " + request);
         try (Response response = client.newCall(request).execute()) {
             String responseString = response.body().string();
             Movie[] movies = this.gson.fromJson(responseString, Movie[].class);
