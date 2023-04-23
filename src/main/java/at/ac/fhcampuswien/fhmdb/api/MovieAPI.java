@@ -2,44 +2,30 @@ package at.ac.fhcampuswien.fhmdb.api;
 
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
-
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
 import okhttp3.*;
 import com.google.gson.Gson;
 
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-
+import java.util.UUID;
 public class MovieAPI {
-
     public static final String DELIMITER = "&";
-    OkHttpClient client = new OkHttpClient();
-    final String BASE_URL = "http://localhost:8080";
-    Gson gson = null;
-    public MovieAPI() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Movie.class, new MovieTypeAdapter());
-        this.gson = gsonBuilder.create();
-    }
-    public List<Movie> getFullMovieList() throws IOException {
-        String url = BASE_URL + "/movies";
-        Request request = new Request.Builder().url(url).removeHeader("User-Agent").addHeader("User-Agent", "http.agent").build();
-        try(Response response = client.newCall(request).execute()) {
-            String responseString = response.body().string();
-            Movie[] movies = this.gson.fromJson(responseString, Movie[].class);
-            return Arrays.asList(movies);
+    private static final String URL = "http://prog2.fh-campuswien.ac.at/movies"; // https if certificates work
+//    private static final String URL = "http://localhost:8080/movies"; // https if certificates work
 
+    private static final OkHttpClient client = new OkHttpClient();
+
+    private String buildUrl(UUID id) {
+        StringBuilder url = new StringBuilder(URL);
+        if (id != null) {
+            url.append("/").append(id);
         }
+        return url.toString();
     }
 
-    private  String buildUrl(String query, Genre genre, String releaseYear, String ratingFrom) {
-        StringBuilder url = new StringBuilder(BASE_URL+ "/movies");
+    private static String buildUrl(String query, Genre genre, String releaseYear, String ratingFrom) {
+        StringBuilder url = new StringBuilder(URL);
 
         if ( (query != null && !query.isEmpty()) ||
                 genre != null || releaseYear != null || ratingFrom != null) {
@@ -64,20 +50,45 @@ public class MovieAPI {
         System.out.println(url.toString());
         return url.toString();
     }
-    public List<Movie> getFilteredMovieList(String query, Genre genre, String releaseYear, String ratingFrom) throws IOException {
+
+    public static List<Movie> getAllMovies() {
+        return getAllMovies(null, null, null, null);
+    }
+
+    public static List<Movie> getAllMovies(String query, Genre genre, String releaseYear, String ratingFrom){
         String url = buildUrl(query, genre, releaseYear, ratingFrom);
         Request request = new Request.Builder()
                 .url(url)
                 .removeHeader("User-Agent")
-                .addHeader("User-Agent", "http.agent")
+                .addHeader("User-Agent", "http.agent")  // needed for the server to accept the request
                 .build();
 
-
-        System.out.println("request " + request);
         try (Response response = client.newCall(request).execute()) {
-            String responseString = response.body().string();
-            Movie[] movies = this.gson.fromJson(responseString, Movie[].class);
+            String responseBody = response.body().string();
+            Gson gson = new Gson();
+            Movie[] movies = gson.fromJson(responseBody, Movie[].class);
+
             return Arrays.asList(movies);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
+        return new ArrayList<>();
+    }
+
+    public Movie requestMovieById(UUID id){
+        String url = buildUrl(id);
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            Gson gson = new Gson();
+            return gson.fromJson(response.body().string(), Movie.class);
+        } catch (Exception e) {
+            System.err.println(this.getClass() + ": http status not ok");
+        }
+
+        return null;
     }
 }
+
