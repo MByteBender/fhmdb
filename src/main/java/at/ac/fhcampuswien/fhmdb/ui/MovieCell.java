@@ -93,6 +93,7 @@ public class MovieCell extends ListCell<Movie> {
 
     }
 
+
     private VBox getDetails() {
         VBox details = new VBox();
         Label releaseYear = new Label("Release Year: " + getItem().getReleaseYear());
@@ -103,6 +104,8 @@ public class MovieCell extends ListCell<Movie> {
         Label writers = new Label("Writers: " + String.join(", ", getItem().getWriters()));
         Label mainCast = new Label("Main Cast: " + String.join(", ", getItem().getMainCast()));
 
+
+
         releaseYear.getStyleClass().add("text-white");
         length.getStyleClass().add("text-white");
         rating.getStyleClass().add("text-white");
@@ -110,12 +113,20 @@ public class MovieCell extends ListCell<Movie> {
         writers.getStyleClass().add("text-white");
         mainCast.getStyleClass().add("text-white");
 
-        details.getChildren().add(releaseYear);
-        details.getChildren().add(rating);
-        details.getChildren().add(length);
-        details.getChildren().add(directors);
-        details.getChildren().add(writers);
-        details.getChildren().add(mainCast);
+        if (isWatchlistCell){
+            details.getChildren().add(releaseYear);
+            details.getChildren().add(rating);
+            details.getChildren().add(length);
+        } else {
+            details.getChildren().add(releaseYear);
+            details.getChildren().add(rating);
+            details.getChildren().add(length);
+            details.getChildren().add(directors);
+            details.getChildren().add(writers);
+            details.getChildren().add(mainCast);
+        }
+
+
         return details;
     }
     @Override
