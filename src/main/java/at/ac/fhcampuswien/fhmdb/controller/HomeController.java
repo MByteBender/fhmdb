@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.fhmdb.controller;
 
+import at.ac.fhcampuswien.fhmdb.FhmdbApplication;
 import at.ac.fhcampuswien.fhmdb.api.MovieAPI;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
@@ -12,8 +13,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -42,6 +53,17 @@ public class HomeController implements Initializable {
     @FXML
     public JFXButton sortBtn;
 
+    @FXML
+    public Button watchlistBtn;
+
+
+    @FXML
+    public VBox mainPane;
+    @FXML
+    public HBox welcomeHbox;
+    @FXML
+    public HBox menuHbox;
+
 
     public List<Movie> allMovies = Movie.initializeMovies();
     public ObservableList<Movie> observableMovies = FXCollections.observableArrayList();   // automatically updates corresponding UI elements when underlying data changes
@@ -49,10 +71,13 @@ public class HomeController implements Initializable {
     public SortState sortedState;
 
 
+
     MovieAPI movieAPI = new MovieAPI();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+
         try {
             initializeState();
         } catch (IOException e) {
@@ -81,7 +106,7 @@ public class HomeController implements Initializable {
     public void initializeLayout() {
 
         movieListView.setItems(observableMovies);   // set the items of the listview to the observable list
-        movieListView.setCellFactory(movieListView -> new MovieCell());// apply custom cells to the listview
+        movieListView.setCellFactory(movieListView -> new MovieCell(false));// apply custom cells to the listview
 
         // genre combobox
         Object[] genres = Genre.values();   // get all genres
@@ -280,6 +305,22 @@ public class HomeController implements Initializable {
                 .filter(movie -> movie.getReleaseYear() >= startYear && movie.getReleaseYear() <= endYear)
                 .toList();
 
+    }
+
+
+    public void loadWatchlistView() {
+        FXMLLoader fxmlLoader = new FXMLLoader(FhmdbApplication.class.getResource("watchlist-view.fxml"));
+        try {
+            Scene scene = new Scene(fxmlLoader.load(), 890, 620);
+            Stage stage = (Stage)mainPane.getScene().getWindow();
+            stage.setScene(scene);
+
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("An error has occurred.");
+            alert.setContentText("Error while loading.");
+        }
     }
 
 

@@ -22,6 +22,7 @@ public class MovieAPI {
             url.append("/").append(id);
         }
         return url.toString();
+        
     }
 
     private static String buildUrl(String query, Genre genre, String releaseYear, String ratingFrom) {
