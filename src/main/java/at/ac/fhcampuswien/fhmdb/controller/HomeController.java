@@ -2,6 +2,8 @@ package at.ac.fhcampuswien.fhmdb.controller;
 
 import at.ac.fhcampuswien.fhmdb.FhmdbApplication;
 import at.ac.fhcampuswien.fhmdb.api.MovieAPI;
+import at.ac.fhcampuswien.fhmdb.datalayer.DatabaseException;
+import at.ac.fhcampuswien.fhmdb.datalayer.MovieApiException;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.models.SortState;
@@ -81,7 +83,7 @@ public class HomeController implements Initializable {
         try {
             initializeState();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            new MovieApiException("Unexpected error in fetching the movies from the API. Check if you have internet connection!");
         }
         initializeLayout();
 
@@ -92,21 +94,31 @@ public class HomeController implements Initializable {
         getMoviesBetweenYears(observableMovies, 2001, 2010).stream()
                 .map(Movie::getReleaseYear)
                 .forEach(System.out::println);
-
     }
 
     public void initializeState() throws IOException {
-//        allMovies = Movie.initializeMovies();
-        List<Movie> result = MovieAPI.getAllMovies();
-        setMovies(result);
-        setMovieList(result);; // add all movies to the observable list
-        sortedState = SortState.NONE;
+        try {
+//       allMovies = Movie.initializeMovies();
+            List<Movie> result = MovieAPI.getAllMovies();
+            setMovies(result);
+            setMovieList(result);
+            ; // add all movies to the observable list
+            sortedState = SortState.NONE;
+        } catch (MovieApiException e) {
+            new MovieApiException("Unexpected error in fetching the movies from the API. Check if you have internet connection!");
+        }
     }
 
     public void initializeLayout() {
 
         movieListView.setItems(observableMovies);   // set the items of the listview to the observable list
-        movieListView.setCellFactory(movieListView -> new MovieCell(false));// apply custom cells to the listview
+        movieListView.setCellFactory(movieListView -> {
+            try {
+                return new MovieCell(false);  // ?????????????
+            } catch (DatabaseException e) {
+                throw new RuntimeException(e);
+            }
+        });// apply custom cells to the listview
 
         // genre combobox
         Object[] genres = Genre.values();   // get all genres

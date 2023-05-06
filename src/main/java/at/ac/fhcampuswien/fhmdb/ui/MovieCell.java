@@ -1,6 +1,7 @@
 package at.ac.fhcampuswien.fhmdb.ui;
 
 import at.ac.fhcampuswien.fhmdb.FhmdbApplication;
+import at.ac.fhcampuswien.fhmdb.datalayer.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.datalayer.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import com.jfoenix.controls.JFXButton;
@@ -33,7 +34,7 @@ public class MovieCell extends ListCell<Movie> {
     WatchlistRepository repository = new WatchlistRepository();
 
     private final boolean isWatchlistCell;
-    public MovieCell(boolean isWatchlistCell) {
+    public MovieCell(boolean isWatchlistCell) throws DatabaseException {
         super();
         this.isWatchlistCell = isWatchlistCell;
         // color scheme
@@ -78,7 +79,7 @@ public class MovieCell extends ListCell<Movie> {
                     scene.setRoot(root);
 
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                    new DatabaseException("Unexpected error in fetching elements from the database"); // WAT?
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -86,7 +87,7 @@ public class MovieCell extends ListCell<Movie> {
                 try {
                     repository.addToWatchlist(getItem());
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                    new DatabaseException("Unexpected error in fetching elements from the database"); // WAT?
                 }
             }
         });

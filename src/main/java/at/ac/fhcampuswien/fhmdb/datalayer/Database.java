@@ -20,19 +20,18 @@ public class Database {
 
     private static Database instance;
 
-    private Database() {
+    private Database() throws DatabaseException {
         try {
             createConnectionSource();
             dao = DaoManager.createDao(connectionSource, WatchlistEntity.class);
             createTables();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new DatabaseException("Unexpected error in fetching elements from the database");
         }
 
     }
 
-    public static Database getInstance()
-    {
+    public static Database getInstance() throws DatabaseException {
         if(instance == null)
         {
             instance = new Database();

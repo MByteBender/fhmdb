@@ -1,6 +1,7 @@
 package at.ac.fhcampuswien.fhmdb.controller;
 
 import at.ac.fhcampuswien.fhmdb.FhmdbApplication;
+import at.ac.fhcampuswien.fhmdb.datalayer.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.datalayer.WatchlistEntity;
 import at.ac.fhcampuswien.fhmdb.datalayer.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
@@ -37,7 +38,7 @@ public class WatchlistViewController {
     WatchlistRepository repo;
 
 
-    public void initialize() {
+    public void initialize() throws DatabaseException {
         System.out.println("WatchlistViewController initialized");
 
         repo = new WatchlistRepository();
@@ -46,7 +47,7 @@ public class WatchlistViewController {
         try {
             watchlist = repo.getAll();
         } catch (SQLException e) {
-            throw new RuntimeException();
+            throw new DatabaseException("Unexpected error in fetching elements from the database");
         }
 
         ObservableList<Movie> movies = FXCollections.observableArrayList(
@@ -56,7 +57,13 @@ public class WatchlistViewController {
         );
 
         movieWatchlistView.setItems(movies);
-        movieWatchlistView.setCellFactory(movieListView -> new MovieCell(true));
+        movieWatchlistView.setCellFactory(movieListView -> {
+            try {
+                return new MovieCell(true);
+            } catch (DatabaseException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 

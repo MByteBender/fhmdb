@@ -9,8 +9,7 @@ import java.util.List;
 public class WatchlistRepository {
     Dao<WatchlistEntity, Long> dao;
 
-    public WatchlistRepository()
-    {
+    public WatchlistRepository() throws DatabaseException {
         this.dao = Database.getInstance().getDao();
     }
     public List<WatchlistEntity> getAll() throws SQLException {

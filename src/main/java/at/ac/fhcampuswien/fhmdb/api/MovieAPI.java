@@ -1,10 +1,12 @@
 package at.ac.fhcampuswien.fhmdb.api;
 
+import at.ac.fhcampuswien.fhmdb.datalayer.MovieApiException;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import okhttp3.*;
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +54,7 @@ public class MovieAPI {
         return url.toString();
     }
 
-    public static List<Movie> getAllMovies() {
+    public static List<Movie> getAllMovies() throws MovieApiException {
         return getAllMovies(null, null, null, null);
     }
 
@@ -70,8 +72,8 @@ public class MovieAPI {
             Movie[] movies = gson.fromJson(responseBody, Movie[].class);
 
             return Arrays.asList(movies);
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
+        } catch (IOException e) {
+            new MovieApiException("Unexpected error in fetching the movies from the API. Check if you have internet connection!");
         }
         return new ArrayList<>();
     }
