@@ -1,13 +1,14 @@
 package at.ac.fhcampuswien.fhmdb.controller;
 
+import at.ac.fhcampuswien.fhmdb.ClickEventHandler;
 import at.ac.fhcampuswien.fhmdb.FhmdbApplication;
 import at.ac.fhcampuswien.fhmdb.api.MovieAPI;
-import at.ac.fhcampuswien.fhmdb.datalayer.DatabaseException;
-import at.ac.fhcampuswien.fhmdb.datalayer.MovieApiException;
+import at.ac.fhcampuswien.fhmdb.datalayer.*;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.models.SortState;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
+import com.j256.ormlite.dao.Dao;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
@@ -30,6 +31,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -114,7 +116,29 @@ public class HomeController implements Initializable {
         movieListView.setItems(observableMovies);   // set the items of the listview to the observable list
         movieListView.setCellFactory(movieListView -> {
             try {
-                return new MovieCell(false);  // ?????????????
+                ClickEventHandler clickEventHandler = (clickedItem, observableList) ->{
+                    Movie temp = (Movie) clickedItem;
+                    WatchlistRepository tempWatchlistRepository = null;
+                    try {
+                        tempWatchlistRepository = new WatchlistRepository();
+                    } catch (DatabaseException e) {
+                         new DatabaseException("Exception");
+                    }
+
+                    try {
+                        Dao<WatchlistEntity, Long> tempDao = Database.getInstance().getDao();
+                        String title = temp.getTitle().replace("'", "''");
+
+                        if (tempDao.queryForEq("title", title).isEmpty()) {
+                            tempDao.create(tempWatchlistRepository.movieToEntity(temp));
+                            System.out.println("Added " + temp.getTitle() + " to Watchlist");
+                        }
+                    } catch (SQLException e) {
+                        new DatabaseException("Could not get Dao");
+                    }
+
+                };
+                return new MovieCell(false, clickEventHandler);
             } catch (DatabaseException e) {
                 throw new RuntimeException(e);
             }

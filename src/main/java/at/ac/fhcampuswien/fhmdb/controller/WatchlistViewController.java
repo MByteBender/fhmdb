@@ -1,11 +1,14 @@
 package at.ac.fhcampuswien.fhmdb.controller;
 
+import at.ac.fhcampuswien.fhmdb.ClickEventHandler;
 import at.ac.fhcampuswien.fhmdb.FhmdbApplication;
+import at.ac.fhcampuswien.fhmdb.datalayer.Database;
 import at.ac.fhcampuswien.fhmdb.datalayer.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.datalayer.WatchlistEntity;
 import at.ac.fhcampuswien.fhmdb.datalayer.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
+import com.j256.ormlite.dao.Dao;
 import com.jfoenix.controls.JFXListView;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -44,10 +47,11 @@ public class WatchlistViewController {
         repo = new WatchlistRepository();
         List<WatchlistEntity> watchlist = new ArrayList<>();
 
+
         try {
             watchlist = repo.getAll();
         } catch (SQLException e) {
-            throw new DatabaseException("Unexpected error in fetching elements from the database");
+            new DatabaseException("Unexpected error in fetching elements from the database");
         }
 
         ObservableList<Movie> movies = FXCollections.observableArrayList(
@@ -58,8 +62,33 @@ public class WatchlistViewController {
 
         movieWatchlistView.setItems(movies);
         movieWatchlistView.setCellFactory(movieListView -> {
+            ClickEventHandler clickEventHandler = (clickedItem, observableList) -> {
+                Movie temp = (Movie) clickedItem;
+
+                String title = temp.getTitle().replace("'", "''");
+                List<WatchlistEntity> movieList = null;
+                try {
+                    Dao<WatchlistEntity, Long> tempDao = Database.getInstance().getDao();
+                    movieList = tempDao.queryForEq("title", title);
+                    if (!movies.isEmpty()) {
+                        try {
+                            tempDao.delete(movieList);
+                        } catch (SQLException e) {
+                            new DatabaseException("Exception");
+                        }
+                        System.out.println("Deleted " + temp.getTitle() + " from Watchlist");
+                    }
+                } catch (DatabaseException e) {
+                    new DatabaseException("Exception");
+                } catch (SQLException e) {
+                     new RuntimeException(e);
+                }
+                this.movies = movieList;
+                movieWatchlistView.setItems(observableList);
+
+            };
             try {
-                return new MovieCell(true);
+                return new MovieCell(true, clickEventHandler);
             } catch (DatabaseException e) {
                 throw new RuntimeException(e);
             }

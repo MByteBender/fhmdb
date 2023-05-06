@@ -1,6 +1,8 @@
 package at.ac.fhcampuswien.fhmdb.ui;
 
+import at.ac.fhcampuswien.fhmdb.ClickEventHandler;
 import at.ac.fhcampuswien.fhmdb.FhmdbApplication;
+import at.ac.fhcampuswien.fhmdb.controller.HomeController;
 import at.ac.fhcampuswien.fhmdb.datalayer.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.datalayer.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
@@ -32,10 +34,12 @@ public class MovieCell extends ListCell<Movie> {
     private final VBox layout = new VBox(title, detail, genre, detailsAndWatchlist);
     private boolean collapsedDetails = true;
     WatchlistRepository repository = new WatchlistRepository();
+    private HomeController homeController;
 
     private final boolean isWatchlistCell;
-    public MovieCell(boolean isWatchlistCell) throws DatabaseException {
+    public MovieCell(boolean isWatchlistCell, ClickEventHandler addToWatchlistClicked) throws DatabaseException {
         super();
+
         this.isWatchlistCell = isWatchlistCell;
         // color scheme
         detailBtn.setStyle("-fx-background-color: #f5c518;");
@@ -69,27 +73,28 @@ public class MovieCell extends ListCell<Movie> {
 
         watchlistBtn.setText(isWatchlistCell ? "Remove from watchlist" : "Add to watchlist");
         watchlistBtn.setOnMouseClicked(mouseEvent -> {
-            if (isWatchlistCell) {
-                try {
-                    repository.removeFromWatchlist(getItem());
-
-                    FXMLLoader fxmlLoader = new FXMLLoader(FhmdbApplication.class.getResource("watchlist-view.fxml"));
-                    Parent root = FXMLLoader.load(fxmlLoader.getLocation());
-                    Scene scene = watchlistBtn.getScene();
-                    scene.setRoot(root);
-
-                } catch (SQLException e) {
-                    new DatabaseException("Unexpected error in fetching elements from the database"); // WAT?
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                try {
-                    repository.addToWatchlist(getItem());
-                } catch (SQLException e) {
-                    new DatabaseException("Unexpected error in fetching elements from the database"); // WAT?
-                }
-            }
+            addToWatchlistClicked.onClick(getItem());
+//            if (isWatchlistCell) {
+//                try {
+//                    repository.removeFromWatchlist(getItem());
+//
+//                    FXMLLoader fxmlLoader = new FXMLLoader(FhmdbApplication.class.getResource("watchlist-view.fxml"));
+//                    Parent root = FXMLLoader.load(fxmlLoader.getLocation());
+//                    Scene scene = watchlistBtn.getScene();
+//                    scene.setRoot(root);
+//
+//                } catch (SQLException e) {
+//                    new DatabaseException("Unexpected error in fetching elements from the database"); // WAT?
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            } else {
+//                try {
+//                    repository.addToWatchlist(getItem());
+//                } catch (SQLException e) {
+//                    new DatabaseException("Unexpected error in fetching elements from the database"); // WAT?
+//                }
+//            }
         });
 
     }
