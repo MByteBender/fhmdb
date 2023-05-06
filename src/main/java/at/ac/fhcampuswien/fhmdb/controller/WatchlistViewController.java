@@ -36,6 +36,7 @@ public class WatchlistViewController {
     public JFXListView movieWatchlistView;
     WatchlistRepository repo;
 
+
     public void initialize() {
         System.out.println("WatchlistViewController initialized");
 
