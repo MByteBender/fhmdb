@@ -113,7 +113,8 @@ public class HomeController implements Initializable {
 
     public void initializeLayout() {
 
-        movieListView.setItems(observableMovies);   // set the items of the listview to the observable list
+        movieListView.setItems(observableMovies);
+          // set the items of the listview to the observable list
         movieListView.setCellFactory(movieListView -> {
             ClickEventHandler clickEventHandler = (clickedItem, watchlistController) ->{
                 Movie temp = (Movie) clickedItem;

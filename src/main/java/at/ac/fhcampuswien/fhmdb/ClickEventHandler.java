@@ -6,6 +6,7 @@ import at.ac.fhcampuswien.fhmdb.models.Movie;
 import com.jfoenix.controls.JFXListView;
 import javafx.collections.ObservableList;
 
+@FunctionalInterface
 public interface ClickEventHandler<T> {
 
 //    public void onClick(T t);
