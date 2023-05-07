@@ -12,6 +12,7 @@ import java.sql.SQLException;
 public class Database {
     public static final String DB_URL = "jdbc:h2:file: ./db/moviesDB";
     public static final String username = "user";
+//    public static final String username = "use"; // test Error
     public static final String password = "pass";
 
     private static ConnectionSource connectionSource;
@@ -26,7 +27,7 @@ public class Database {
             dao = DaoManager.createDao(connectionSource, WatchlistEntity.class);
             createTables();
         } catch (SQLException e) {
-            throw new DatabaseException("Unexpected error in fetching elements from the database");
+            new DatabaseException("Unexpected error in fetching elements from the database");
         }
 
     }

@@ -115,33 +115,29 @@ public class HomeController implements Initializable {
 
         movieListView.setItems(observableMovies);   // set the items of the listview to the observable list
         movieListView.setCellFactory(movieListView -> {
-            try {
-                ClickEventHandler clickEventHandler = (clickedItem, observableList) ->{
-                    Movie temp = (Movie) clickedItem;
-                    WatchlistRepository tempWatchlistRepository = null;
-                    try {
-                        tempWatchlistRepository = new WatchlistRepository();
-                    } catch (DatabaseException e) {
-                         new DatabaseException("Exception");
+            ClickEventHandler clickEventHandler = (clickedItem, watchlistController) ->{
+                Movie temp = (Movie) clickedItem;
+                WatchlistRepository tempWatchlistRepository = null;
+                try {
+                    tempWatchlistRepository = new WatchlistRepository();
+                } catch (DatabaseException e) {
+                     new DatabaseException("Exception");
+                }
+
+                try {
+                    Dao<WatchlistEntity, Long> tempDao = Database.getInstance().getDao();
+                    String title = temp.getTitle().replace("'", "''");
+
+                    if (tempDao.queryForEq("title", title).isEmpty()) {
+                        tempDao.create(tempWatchlistRepository.movieToEntity(temp));
+                        System.out.println("Added " + temp.getTitle() + " to Watchlist");
                     }
+                } catch (SQLException e) {
+                    new DatabaseException("Could not get Dao");
+                }
 
-                    try {
-                        Dao<WatchlistEntity, Long> tempDao = Database.getInstance().getDao();
-                        String title = temp.getTitle().replace("'", "''");
-
-                        if (tempDao.queryForEq("title", title).isEmpty()) {
-                            tempDao.create(tempWatchlistRepository.movieToEntity(temp));
-                            System.out.println("Added " + temp.getTitle() + " to Watchlist");
-                        }
-                    } catch (SQLException e) {
-                        new DatabaseException("Could not get Dao");
-                    }
-
-                };
-                return new MovieCell(false, clickEventHandler);
-            } catch (DatabaseException e) {
-                throw new RuntimeException(e);
-            }
+            };
+            return new MovieCell(false, clickEventHandler);
         });// apply custom cells to the listview
 
         // genre combobox

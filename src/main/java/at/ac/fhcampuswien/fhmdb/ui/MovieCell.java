@@ -3,6 +3,7 @@ package at.ac.fhcampuswien.fhmdb.ui;
 import at.ac.fhcampuswien.fhmdb.ClickEventHandler;
 import at.ac.fhcampuswien.fhmdb.FhmdbApplication;
 import at.ac.fhcampuswien.fhmdb.controller.HomeController;
+import at.ac.fhcampuswien.fhmdb.controller.WatchlistViewController;
 import at.ac.fhcampuswien.fhmdb.datalayer.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.datalayer.WatchlistRepository;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
@@ -33,11 +34,11 @@ public class MovieCell extends ListCell<Movie> {
     private final HBox detailsAndWatchlist = new HBox(detailBtn, watchlistBtn);
     private final VBox layout = new VBox(title, detail, genre, detailsAndWatchlist);
     private boolean collapsedDetails = true;
-    WatchlistRepository repository = new WatchlistRepository();
-    private HomeController homeController;
+
+    private WatchlistViewController watchlistViewController;
 
     private final boolean isWatchlistCell;
-    public MovieCell(boolean isWatchlistCell, ClickEventHandler addToWatchlistClicked) throws DatabaseException {
+    public MovieCell(boolean isWatchlistCell, ClickEventHandler addToWatchlistClicked, WatchlistViewController watchlistViewController)  {
         super();
 
         this.isWatchlistCell = isWatchlistCell;
@@ -73,7 +74,7 @@ public class MovieCell extends ListCell<Movie> {
 
         watchlistBtn.setText(isWatchlistCell ? "Remove from watchlist" : "Add to watchlist");
         watchlistBtn.setOnMouseClicked(mouseEvent -> {
-            addToWatchlistClicked.onClick(getItem());
+            addToWatchlistClicked.onClick(getItem(),watchlistViewController );
 //            if (isWatchlistCell) {
 //                try {
 //                    repository.removeFromWatchlist(getItem());
@@ -99,7 +100,47 @@ public class MovieCell extends ListCell<Movie> {
 
     }
 
+    public MovieCell(boolean isWatchlistCell, ClickEventHandler addToWatchlistClicked)  {
+        super();
 
+
+        this.isWatchlistCell = isWatchlistCell;
+        // color scheme
+        detailBtn.setStyle("-fx-background-color: #f5c518;");
+        watchlistBtn.setStyle("-fx-background-color: #f5c518;");
+        title.getStyleClass().add("text-yellow");
+        detail.getStyleClass().add("text-white");
+        genre.getStyleClass().add("text-white");
+        genre.setStyle("-fx-font-style: italic");
+        layout.setBackground(new Background(new BackgroundFill(Color.web("#454545"), null, null)));
+
+        // layout
+        title.fontProperty().set(title.getFont().font(20));
+        detail.setWrapText(true);
+        layout.setPadding(new Insets(10));
+        layout.spacingProperty().set(10);
+        layout.alignmentProperty().set(Pos.CENTER_LEFT);
+        detailsAndWatchlist.spacingProperty().set(10);
+
+        detailBtn.setOnMouseClicked(mouseEvent -> {
+            if (collapsedDetails) {
+                layout.getChildren().add(getDetails());
+                collapsedDetails = false;
+                detailBtn.setText("Hide Details");
+            } else {
+                layout.getChildren().remove(4);
+                collapsedDetails = true;
+                detailBtn.setText("Show Details");
+            }
+            setGraphic(layout);
+        });
+
+        watchlistBtn.setText(isWatchlistCell ? "Remove from watchlist" : "Add to watchlist");
+        watchlistBtn.setOnMouseClicked(mouseEvent -> {
+            addToWatchlistClicked.onClick(getItem(),null ); //watchlistviewcontroller wird nciht verwedntet deswegen nuul
+        });
+
+    }
     private VBox getDetails() {
         VBox details = new VBox();
         Label releaseYear = new Label("Release Year: " + getItem().getReleaseYear());

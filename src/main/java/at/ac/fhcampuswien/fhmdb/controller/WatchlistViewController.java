@@ -60,42 +60,59 @@ public class WatchlistViewController {
                         .collect(Collectors.toList())
         );
 
-        movieWatchlistView.setItems(movies);
-        movieWatchlistView.setCellFactory(movieListView -> {
-            ClickEventHandler clickEventHandler = (clickedItem, observableList) -> {
-                Movie temp = (Movie) clickedItem;
+        ClickEventHandler clickEventHandler = (clickedItem, watchlistController) -> {
+            Movie temp = (Movie) clickedItem;
 
-                String title = temp.getTitle().replace("'", "''");
-                List<WatchlistEntity> movieList = null;
-                try {
-                    Dao<WatchlistEntity, Long> tempDao = Database.getInstance().getDao();
-                    movieList = tempDao.queryForEq("title", title);
-                    if (!movies.isEmpty()) {
-                        try {
-                            tempDao.delete(movieList);
-                        } catch (SQLException e) {
-                            new DatabaseException("Exception");
-                        }
-                        System.out.println("Deleted " + temp.getTitle() + " from Watchlist");
-                    }
-                } catch (DatabaseException e) {
-                    new DatabaseException("Exception");
-                } catch (SQLException e) {
-                     new RuntimeException(e);
-                }
-                this.movies = movieList;
-                movieWatchlistView.setItems(observableList);
-
-            };
+            String title = temp.getTitle().replace("'", "''");
+            List<WatchlistEntity> movieList = null;
             try {
-                return new MovieCell(true, clickEventHandler);
+                Dao<WatchlistEntity, Long> tempDao = Database.getInstance().getDao();
+                movieList = tempDao.queryForEq("title", title);
+                if (!movies.isEmpty()) {
+                    try {
+                        tempDao.delete(movieList);
+                    } catch (SQLException e) {
+                        new DatabaseException("Exception");
+                    }
+                    System.out.println("Deleted " + temp.getTitle() + " from Watchlist");
+                }
             } catch (DatabaseException e) {
-                throw new RuntimeException(e);
+                new DatabaseException("Exception");
+            } catch (SQLException e) {
+                System.out.println("Error");;
             }
-        });
+            watchlistController.updateListView();
+
+        };
+        movieWatchlistView.setItems(movies);
+        movieWatchlistView.setCellFactory(movieListView -> new MovieCell(true, clickEventHandler, this));
     }
 
 
+    public void updateListView(){
+        WatchlistRepository repo = null;
+        try {
+            repo = new WatchlistRepository();
+        } catch (DatabaseException e) {
+            new DatabaseException("Exception");
+        }
+        List<WatchlistEntity> watchlist = new ArrayList<>();
+
+
+        try {
+            watchlist = repo.getAll();
+        } catch (SQLException e) {
+            new DatabaseException("Unexpected error in fetching elements from the database");
+        }
+
+        ObservableList<Movie> movies = FXCollections.observableArrayList(
+                watchlist.stream()
+                        .map(WatchlistEntity::toMovie)
+                        .collect(Collectors.toList())
+        );
+
+        movieWatchlistView.setItems(movies);
+    }
     public void loadHomeView() {
         FXMLLoader fxmlLoader = new FXMLLoader(FhmdbApplication.class.getResource("home-view.fxml"));
         try{
