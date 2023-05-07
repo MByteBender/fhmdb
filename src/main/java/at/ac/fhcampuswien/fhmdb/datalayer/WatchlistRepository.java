@@ -10,7 +10,7 @@ public class WatchlistRepository {
     Dao<WatchlistEntity, Long> dao;
 
     public WatchlistRepository() throws DatabaseException {
-        this.dao = Database.getInstance().getDao();
+        this.dao = Database.getInstance().getDao(); //holt dao
     }
     public List<WatchlistEntity> getAll() throws SQLException {
         return dao.queryForAll();
@@ -18,7 +18,7 @@ public class WatchlistRepository {
 
     public void addToWatchlist(Movie movie) throws SQLException {
         String title = movie.getTitle().replace("'", "''");
-        if (dao.queryForEq("title", title).isEmpty()) {
+        if (dao.queryForEq("title", title).isEmpty()) { //wenn titel nicht exisitert wird er der Databse hinzgefügt
             dao.create(movieToEntity(movie));
             System.out.println("Added " + movie.getTitle() + " to Watchlist");
         }
@@ -26,7 +26,7 @@ public class WatchlistRepository {
 
     public void removeFromWatchlist(Movie movie) throws SQLException {
         String title = movie.getTitle().replace("'", "''");
-        List<WatchlistEntity> movies = dao.queryForEq("title", title);
+        List<WatchlistEntity> movies = dao.queryForEq("title", title); //nimm titel wähle diesen Eintrag
         if (!movies.isEmpty()) {
             dao.delete(movies);
             System.out.println("Deleted " + movie.getTitle() + " from Watchlist");
@@ -34,7 +34,7 @@ public class WatchlistRepository {
     }
 
 
-    public WatchlistEntity movieToEntity(Movie movie)
+    public WatchlistEntity movieToEntity(Movie movie) // konvertiert movie in watchlistentity und wird übers dao in Databse gepackt
     {
         return new WatchlistEntity(movie.getId(), movie.getTitle(), movie.getDescription(), WatchlistEntity.genresToString(movie.getGenres()), movie.getReleaseYear(), movie.getImgUrl(), movie.getLengthInMinutes(), movie.getRating());
     }

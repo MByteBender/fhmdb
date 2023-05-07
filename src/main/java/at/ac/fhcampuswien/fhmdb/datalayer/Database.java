@@ -21,7 +21,7 @@ public class Database {
 
     private static Database instance;
 
-    private Database() throws DatabaseException {
+    private Database() throws DatabaseException {//damit man von außerhalb keine Datenbank krerien kann
         try {
             createConnectionSource();
             dao = DaoManager.createDao(connectionSource, WatchlistEntity.class);
@@ -32,7 +32,7 @@ public class Database {
 
     }
 
-    public static Database getInstance() throws DatabaseException {
+    public static Database getInstance() throws DatabaseException { //damit nur eine instanz der database existiert
         if(instance == null)
         {
             instance = new Database();

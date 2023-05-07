@@ -40,7 +40,7 @@ public class WatchlistEntity {
 
 
 
-    public WatchlistEntity()
+    public WatchlistEntity() //brauchgt die dattase
     {
 
     }
@@ -128,7 +128,7 @@ public class WatchlistEntity {
         this.rating = rating;
     }
 
-    public static String genresToString(List<Genre> genres) {
+    public static String genresToString(List<Genre> genres) { //man gibt eine liste mit Genere und kreirt eien String mit Beistirch getrennt damit man es in der Databse speichern kann
 
         String result = "";
         for (var item: genres) {
@@ -137,7 +137,7 @@ public class WatchlistEntity {
         return result;
     }
 
-    public Movie toMovie() {
+    public Movie toMovie() { //wandelt movie aus Database wieder in Movie objekt um
         List<Genre> genres = Arrays.stream(this.genres.split(","))
                 .map(Genre::valueOf)
                 .collect(Collectors.toList());
