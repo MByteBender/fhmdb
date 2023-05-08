@@ -1,6 +1,7 @@
 package at.ac.fhcampuswien.fhmdb.datalayer;
 
 
+import at.ac.fhcampuswien.fhmdb.Exceptions.DatabaseException;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;

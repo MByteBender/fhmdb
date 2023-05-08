@@ -1,6 +1,6 @@
 package at.ac.fhcampuswien.fhmdb.api;
 
-import at.ac.fhcampuswien.fhmdb.datalayer.MovieApiException;
+import at.ac.fhcampuswien.fhmdb.Exceptions.MovieApiException;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import okhttp3.*;
