@@ -59,6 +59,8 @@ public class WatchlistViewController {
         ClickEventHandler clickEventHandler = (clickedItem, watchlistController) -> {
             Movie temp = (Movie) clickedItem;
 
+
+
             String title = temp.getTitle().replace("'", "''");
             List<WatchlistEntity> movieList = null;
             try {

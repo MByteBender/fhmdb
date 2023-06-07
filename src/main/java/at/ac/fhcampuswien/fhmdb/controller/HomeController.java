@@ -83,6 +83,12 @@ public class HomeController implements Initializable, Observer {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        // homecontroller bekommt jetzt updates
+        try {
+            WatchlistRepository.getWatchlistRepositoryInstance().addObserver(this);
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        }
 
         try {
             initializeState();
@@ -119,6 +125,9 @@ public class HomeController implements Initializable, Observer {
           // set the items of the listview to the observable list
         movieListView.setCellFactory(movieListView -> {
             ClickEventHandler clickEventHandler = (clickedItem, watchlistController) ->{
+
+
+
                 Movie temp = (Movie) clickedItem;
                 WatchlistRepository tempWatchlistRepository = null;
                 try {
@@ -132,9 +141,15 @@ public class HomeController implements Initializable, Observer {
                     String title = temp.getTitle().replace("'", "''");
 
                     if (tempDao.queryForEq("title", title).isEmpty()) {
+
                         tempDao.create(tempWatchlistRepository.movieToEntity(temp));
+                        // updates the message so aslo the observers get it
+                        WatchlistRepository.getWatchlistRepositoryInstance().updateObserver(ObservableMessages.ADDED);
                         System.out.println("Added " + temp.getTitle() + " to Watchlist");
+                        return;
                     }
+                    WatchlistRepository.getWatchlistRepositoryInstance().updateObserver(ObservableMessages.ALREADY_EXISTS);
+
                 } catch (SQLException e) {
                     new DatabaseException("Could not get Dao");
                 }
