@@ -39,10 +39,9 @@ public class WatchlistRepository implements Observable {
         if (dao.queryForEq("title", title).isEmpty()) { //wenn titel nicht exisitert wird er der Databse hinzgefügt
             dao.create(movieToEntity(movie));
             System.out.println("Added " + movie.getTitle() + " to Watchlist");
-            this.updateObserver(ObservableMessages.ADDED);
-            return;
+
         }
-        this.updateObserver(ObservableMessages.ALREADY_EXISTS);
+
     }
 
     public void removeFromWatchlist(Movie movie) throws SQLException {
