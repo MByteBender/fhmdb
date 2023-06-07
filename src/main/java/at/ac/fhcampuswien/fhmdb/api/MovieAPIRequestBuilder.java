@@ -5,7 +5,7 @@ import at.ac.fhcampuswien.fhmdb.models.Genre;
 public class MovieAPIRequestBuilder {
 
     private StringBuilder baseUrl;
-    private boolean isFirst;
+    private boolean isFirst = true;
     public MovieAPIRequestBuilder(String baseUrl){
         this.baseUrl = new StringBuilder(baseUrl);
     }

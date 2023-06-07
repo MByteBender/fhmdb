@@ -40,7 +40,7 @@ public class WatchlistViewController {
     public void initialize() throws DatabaseException {
         System.out.println("WatchlistViewController initialized");
 
-        repo = new WatchlistRepository();
+        repo = WatchlistRepository.getWatchlistRepositoryInstance();
         List<WatchlistEntity> watchlist = new ArrayList<>();
 
 
@@ -88,7 +88,7 @@ public class WatchlistViewController {
     public void updateListView(){
         WatchlistRepository repo = null;
         try {
-            repo = new WatchlistRepository();
+            repo = WatchlistRepository.getWatchlistRepositoryInstance();
         } catch (DatabaseException e) {
             new DatabaseException("Exception");
         }

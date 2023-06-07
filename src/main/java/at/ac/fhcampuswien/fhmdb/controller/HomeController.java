@@ -119,7 +119,7 @@ public class HomeController implements Initializable {
                 Movie temp = (Movie) clickedItem;
                 WatchlistRepository tempWatchlistRepository = null;
                 try {
-                    tempWatchlistRepository = new WatchlistRepository();
+                    tempWatchlistRepository = WatchlistRepository.getWatchlistRepositoryInstance();
                 } catch (DatabaseException e) {
                      new DatabaseException("Exception");
                 }

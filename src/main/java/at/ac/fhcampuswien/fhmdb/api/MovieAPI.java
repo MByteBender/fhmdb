@@ -87,6 +87,7 @@ public class MovieAPI {
 
         try (Response response = client.newCall(request).execute()) {
             String responseBody = Objects.requireNonNull(response.body()).string();
+            responseBody.trim();
             Gson gson = new Gson();
             Movie[] movies = gson.fromJson(responseBody, Movie[].class);
 
