@@ -2,6 +2,9 @@ package at.ac.fhcampuswien.fhmdb.datalayer;
 
 import at.ac.fhcampuswien.fhmdb.Exceptions.DatabaseException;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
+import at.ac.fhcampuswien.fhmdb.observe.Observable;
+import at.ac.fhcampuswien.fhmdb.observe.ObservableMessages;
+import at.ac.fhcampuswien.fhmdb.observe.Observer;
 import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
@@ -9,7 +12,7 @@ import java.util.List;
 
 
 
-public class WatchlistRepository {
+public class WatchlistRepository implements Observable {
 
     private static WatchlistRepository instance;
     Dao<WatchlistEntity, Long> dao;
@@ -36,7 +39,10 @@ public class WatchlistRepository {
         if (dao.queryForEq("title", title).isEmpty()) { //wenn titel nicht exisitert wird er der Databse hinzgefügt
             dao.create(movieToEntity(movie));
             System.out.println("Added " + movie.getTitle() + " to Watchlist");
+            this.updateObserver(ObservableMessages.ADDED);
+            return;
         }
+        this.updateObserver(ObservableMessages.ALREADY_EXISTS);
     }
 
     public void removeFromWatchlist(Movie movie) throws SQLException {
@@ -53,5 +59,18 @@ public class WatchlistRepository {
     {
         return new WatchlistEntity(movie.getId(), movie.getTitle(), movie.getDescription(), WatchlistEntity.genresToString(movie.getGenres()), movie.getReleaseYear(), movie.getImgUrl(), movie.getLengthInMinutes(), movie.getRating());
     }
+
+    @Override
+    public void addObserver(Observer observer) {
+        this.observers.add(observer);
+    }
+
+    @Override
+    public void updateObserver(ObservableMessages message) {
+    for(Observer observer : this.observers){
+        observer.update(message);
+    }
+    }
+
 
 }

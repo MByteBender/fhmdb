@@ -9,6 +9,8 @@ import at.ac.fhcampuswien.fhmdb.datalayer.*;
 import at.ac.fhcampuswien.fhmdb.models.Genre;
 import at.ac.fhcampuswien.fhmdb.models.Movie;
 import at.ac.fhcampuswien.fhmdb.models.SortState;
+import at.ac.fhcampuswien.fhmdb.observe.ObservableMessages;
+import at.ac.fhcampuswien.fhmdb.observe.Observer;
 import at.ac.fhcampuswien.fhmdb.ui.MovieCell;
 import com.j256.ormlite.dao.Dao;
 import com.jfoenix.controls.JFXButton;
@@ -23,6 +25,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -35,7 +38,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class HomeController implements Initializable {
+public class HomeController implements Initializable, Observer {
     @FXML
     public JFXButton searchBtn;
 
@@ -356,4 +359,12 @@ public class HomeController implements Initializable {
     }
 
 
+    @Override
+    public void update(ObservableMessages messages) {
+        if(messages == ObservableMessages.ADDED){
+            new Alert(Alert.AlertType.INFORMATION, "Movie was successfully added to the Watchlist", ButtonType.OK).show();
+        } else {
+            new Alert(Alert.AlertType.WARNING, "Movie is already in Watchlist!", ButtonType.OK).show();
+        }
+    }
 }
