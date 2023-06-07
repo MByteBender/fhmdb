@@ -7,10 +7,8 @@ import okhttp3.*;
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 public class MovieAPI {
     public static final String DELIMITER = "&";
     private static final String URL = "http://prog2.fh-campuswien.ac.at/movies"; // https if certificates work
@@ -28,30 +26,51 @@ public class MovieAPI {
     }
 
     private static String buildUrl(String query, Genre genre, String releaseYear, String ratingFrom) {
-        StringBuilder url = new StringBuilder(URL);
+        // !Test URL WITH PRINT
+       /* String testUrl = new MovieAPIRequestBuilder(URL)
+                .query(query)
+                .genre(genre)
+                .releaseYear(releaseYear)
+                .ratingFrom(ratingFrom)
+                .build();
 
-        if ( (query != null && !query.isEmpty()) ||
-                genre != null || releaseYear != null || ratingFrom != null) {
+        System.out.println("Tets URL: "+ testUrl);
+*/
+        return new MovieAPIRequestBuilder(URL)
+                .query(query)
+                .genre(genre)
+                .releaseYear(releaseYear)
+                .ratingFrom(ratingFrom)
+                .build();
 
-            url.append("?");
 
-            // check all parameters and add them to the url
-            if (query != null && !query.isEmpty()) {
-                url.append("query=").append(query).append(DELIMITER);
-            }
-            if (genre != null) {
-                url.append("genre=").append(genre).append(DELIMITER);
-            }
-            if (releaseYear != null) {
-                url.append("releaseYear=").append(releaseYear).append(DELIMITER);
-            }
-            if (ratingFrom != null) {
-                url.append("ratingFrom=").append(ratingFrom).append(DELIMITER);
-            }
-        }
 
-        System.out.println(url.toString());
-        return url.toString();
+
+
+//        StringBuilder url = new StringBuilder(URL);
+//
+//        if ( (query != null && !query.isEmpty()) ||
+//                genre != null || releaseYear != null || ratingFrom != null) {
+//
+//            url.append("?");
+//
+//            // check all parameters and add them to the url
+//            if (query != null && !query.isEmpty()) {
+//                url.append("query=").append(query).append(DELIMITER);
+//            }
+//            if (genre != null) {
+//                url.append("genre=").append(genre).append(DELIMITER);
+//            }
+//            if (releaseYear != null) {
+//                url.append("releaseYear=").append(releaseYear).append(DELIMITER);
+//            }
+//            if (ratingFrom != null) {
+//                url.append("ratingFrom=").append(ratingFrom).append(DELIMITER);
+//            }
+//        }
+//
+//        System.out.println(url.toString());
+//        return url.toString();
     }
 
     public static List<Movie> getAllMovies() throws MovieApiException {
@@ -67,7 +86,7 @@ public class MovieAPI {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            String responseBody = response.body().string();
+            String responseBody = Objects.requireNonNull(response.body()).string();
             Gson gson = new Gson();
             Movie[] movies = gson.fromJson(responseBody, Movie[].class);
 
